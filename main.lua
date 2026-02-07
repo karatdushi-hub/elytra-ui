@@ -319,6 +319,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local IsAnimating = false -- Prevent rapid minimize/maximize
 	local DropdownOpen = false -- Prevent multiple dropdowns open
 	local KeybindLabels = {} -- Store keybind labels for display
+	local UnbindButtons = {} -- Store unbind buttons for theme updates
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -394,6 +395,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Clear active functions
 		ElytraUI.ActiveFunctions = {}
 
+		-- Clear keybind labels
+		KeybindLabels = {}
+
+		-- Clear unbind buttons
+		UnbindButtons = {}
+
 		-- Destroy minimize icon
 		if ElytraUI.MinimizeIcon and ElytraUI.MinimizeIcon.Parent then
 			ElytraUI.MinimizeIcon.Parent:Destroy()
@@ -416,7 +423,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		end
 
 		-- Don't display if Key is nil (None)
-		if not Key then return end
+		if not Key then
+			-- Update panel visibility after removing label
+			self:UpdateKeybindPanelVisibility()
+			return
+		end
 
 		-- Format key name properly - remove Enum.KeyCode. prefix
 		local KeyName = ""
@@ -430,7 +441,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		KeybindLabel.Name = Name
 		KeybindLabel.Size = UDim2.new(1, -10, 0, 20)
 		KeybindLabel.BackgroundTransparency = 1
-		KeybindLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+		KeybindLabel.TextColor3 = Theme.Description
 		KeybindLabel.TextSize = 14
 		KeybindLabel.Font = Enum.Font.Gotham
 		KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -439,7 +450,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		KeybindLabels[Name] = KeybindLabel
 
-		-- Update panel size
+		-- Update panel size and visibility
 		local childCount = 0
 		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
 			if child:IsA("TextLabel") then
@@ -447,6 +458,52 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			end
 		end
 		ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
+		self:UpdateKeybindPanelVisibility()
+	end
+
+	--// Elytra-UI: UpdateKeybindPanelVisibility function to hide panel if no keybinds
+	function Options:UpdateKeybindPanelVisibility()
+		if not ElytraUI.KeybindPanel then return end
+
+		local childCount = 0
+		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
+			if child:IsA("TextLabel") then
+				childCount = childCount + 1
+			end
+		end
+
+		if childCount == 0 then
+			-- Hide panel if no keybinds
+			ElytraUI.KeybindPanel.Visible = false
+		else
+			-- Show panel if there are keybinds
+			ElytraUI.KeybindPanel.Visible = true
+		end
+	end
+
+	--// Elytra-UI: UpdateKeybindPanelColors function to update label colors on theme change
+	function Options:UpdateKeybindPanelColors()
+		if not ElytraUI.KeybindPanel then return end
+
+		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
+			if child:IsA("TextLabel") then
+				child.TextColor3 = Theme.Description
+			end
+		end
+	end
+
+	--// Elytra-UI: RemoveKeybindLabel function to remove a keybind label from panel
+	function Options:RemoveKeybindLabel(Name)
+		if not ElytraUI.KeybindPanel then return end
+
+		-- Remove existing label with same name
+		if KeybindLabels[Name] then
+			KeybindLabels[Name]:Destroy()
+			KeybindLabels[Name] = nil
+		end
+
+		-- Update panel visibility
+		self:UpdateKeybindPanelVisibility()
 	end
 
 	--// Elytra-UI: Custom Connect function to store connections
@@ -506,8 +563,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	KeybindPanel.Name = "KeybindPanel"
 	KeybindPanel.Size = UDim2.new(0, 200, 0, 30)
 	KeybindPanel.Position = UDim2.new(1, -210, 0, 10)
-	KeybindPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	KeybindPanel.BackgroundColor3 = Theme.Primary
 	KeybindPanel.BackgroundTransparency = 0.2
+	KeybindPanel.Visible = false -- Hidden by default
 	KeybindPanel.Parent = KeybindPanelGui
 
 	local PanelCorner = Instance.new("UICorner")
@@ -515,7 +573,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	PanelCorner.Parent = KeybindPanel
 
 	local PanelStroke = Instance.new("UIStroke")
-	PanelStroke.Color = Color3.fromRGB(40, 40, 40)
+	PanelStroke.Color = Theme.Outline
 	PanelStroke.Thickness = 1
 	PanelStroke.Transparency = 0.5
 	PanelStroke.Parent = KeybindPanel
@@ -787,27 +845,27 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Title, Description = Options:GetLabels(Dropdown);
 		local Bind = Dropdown["Main"].Options;
 
-		-- Create unbind button (white square with rounded corners)
+		-- Create unbind button (smaller, smoother, theme-aware)
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
-		UnbindButton.Size = UDim2.new(0, 20, 0, 20)
-		UnbindButton.Position = UDim2.new(1, -25, 0.5, -10)
-		UnbindButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		UnbindButton.Size = UDim2.new(0, 16, 0, 16)
+		UnbindButton.Position = UDim2.new(1, -20, 0.5, -8)
+		UnbindButton.BackgroundColor3 = Theme.Interactables
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
 		UnbindButton.Text = ""
 		UnbindButton.Parent = Dropdown["Main"]
 
 		local UnbindCorner = Instance.new("UICorner")
-		UnbindCorner.CornerRadius = UDim.new(0, 4)
+		UnbindCorner.CornerRadius = UDim.new(0, 3)
 		UnbindCorner.Parent = UnbindButton
 
-		-- Create inner black square (shows when keybind is set)
+		-- Create inner square (shows when keybind is set)
 		local InnerSquare = Instance.new("Frame")
 		InnerSquare.Name = "InnerSquare"
-		InnerSquare.Size = UDim2.new(0, 12, 0, 12)
-		InnerSquare.Position = UDim2.new(0.5, -6, 0.5, -6)
-		InnerSquare.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		InnerSquare.Size = UDim2.new(0, 8, 0, 8)
+		InnerSquare.Position = UDim2.new(0.5, -4, 0.5, -4)
+		InnerSquare.BackgroundColor3 = Theme.Primary
 		InnerSquare.BackgroundTransparency = 1
 		InnerSquare.BorderSizePixel = 0
 		InnerSquare.Visible = false
@@ -817,15 +875,28 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		InnerCorner.CornerRadius = UDim.new(0, 2)
 		InnerCorner.Parent = InnerSquare
 
+		-- Store unbind button for theme updates
+		table.insert(UnbindButtons, { Button = UnbindButton, InnerSquare = InnerSquare })
+
+		-- Hover animation for unbind button
+		ElytraConnect(UnbindButton.MouseEnter, function()
+			Tween(UnbindButton, .15, { BackgroundColor3 = Color(Theme.Interactables, 10, Setup.ThemeMode) })
+		end)
+
+		ElytraConnect(UnbindButton.MouseLeave, function()
+			Tween(UnbindButton, .15, { BackgroundColor3 = Theme.Interactables })
+		end)
+
 		local CurrentKey = nil
 		local DetectConnection = nil
 		local IsBinding = false
 
-		-- Function to update unbind button visibility
+		-- Function to update unbind button visibility and colors
 		local UpdateUnbindButton = function()
 			if CurrentKey then
 				InnerSquare.Visible = true
 				InnerSquare.BackgroundTransparency = 0
+				InnerSquare.BackgroundColor3 = Theme.Primary
 			else
 				InnerSquare.Visible = false
 			end
@@ -1221,6 +1292,32 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		if Theme.Shadow then
 			Window.UIStroke.Color = Theme.Shadow
 		end
+
+		-- Update KeybindPanel colors
+		if ElytraUI.KeybindPanel then
+			ElytraUI.KeybindPanel.BackgroundColor3 = Theme.Primary
+			if ElytraUI.KeybindPanel:FindFirstChild("UIStroke") then
+				ElytraUI.KeybindPanel.UIStroke.Color = Theme.Outline
+			end
+		end
+
+		-- Update MinimizeIcon colors
+		if ElytraUI.MinimizeIcon then
+			ElytraUI.MinimizeIcon.ImageColor3 = Theme.Icon
+		end
+
+		-- Update all UnbindButtons colors
+		for _, UnbindData in pairs(UnbindButtons) do
+			if UnbindData.Button and UnbindData.Button.Parent then
+				UnbindData.Button.BackgroundColor3 = Theme.Interactables
+			end
+			if UnbindData.InnerSquare and UnbindData.InnerSquare.Parent then
+				UnbindData.InnerSquare.BackgroundColor3 = Theme.Primary
+			end
+		end
+
+		-- Update keybind panel label colors
+		self:UpdateKeybindPanelColors()
 
 		for Index, Descendant in next, Screen:GetDescendants() do
 			local Name, Class =  Themes.Names[Descendant.Name],  Themes.Classes[Descendant.ClassName]
