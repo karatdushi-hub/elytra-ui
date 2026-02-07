@@ -802,10 +802,18 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 				-- Double click detected - unbind keybind
 				CurrentKey = nil
 				SetProperty(Bind, { Text = "None" })
-				-- Remove from keybind panel
+				-- Explicitly remove from keybind panel
 				if KeybindLabels[Settings.Title] then
 					KeybindLabels[Settings.Title]:Destroy()
 					KeybindLabels[Settings.Title] = nil
+					-- Update panel size
+					local childCount = 0
+					for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
+						if child:IsA("TextLabel") then
+							childCount = childCount + 1
+						end
+					end
+					ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
 				end
 				--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 				task.delay(0.3, function()
