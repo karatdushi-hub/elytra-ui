@@ -414,6 +414,20 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			KeybindLabels[Name]:Destroy()
 		end
 
+		-- Format key name properly
+		local KeyName = "None"
+		if Key then
+			if typeof(Key) == "table" and Key.KeyCode then
+				KeyName = tostring(Key.KeyCode):gsub("Enum.KeyCode.", "")
+			elseif typeof(Key) == "table" and Key.UserInputType then
+				KeyName = tostring(Key.UserInputType):gsub("Enum.UserInputType.", "")
+			elseif typeof(Key) == "string" then
+				KeyName = Key
+			elseif typeof(Key) == "EnumItem" then
+				KeyName = tostring(Key):gsub("Enum%.", "")
+			end
+		end
+
 		local KeybindLabel = Instance.new("TextLabel")
 		KeybindLabel.Name = Name
 		KeybindLabel.Size = UDim2.new(1, -10, 0, 20)
@@ -422,7 +436,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		KeybindLabel.TextSize = 14
 		KeybindLabel.Font = Enum.Font.Gotham
 		KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
-		KeybindLabel.Text = Name .. ": " .. tostring(Key)
+		KeybindLabel.Text = Name .. ": " .. KeyName
 		KeybindLabel.Parent = ElytraUI.KeybindPanel
 
 		KeybindLabels[Name] = KeybindLabel
@@ -445,16 +459,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	MinimizeIconGui.ResetOnSpawn = false
 	MinimizeIconGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-	local MinimizeIcon = Instance.new("TextButton")
+	local MinimizeIcon = Instance.new("ImageButton")
 	MinimizeIcon.Name = "MinimizeIcon"
 	MinimizeIcon.Size = UDim2.new(0, 50, 0, 50)
 	MinimizeIcon.Position = UDim2.new(0, 10, 0.5, -25)
-	MinimizeIcon.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	MinimizeIcon.BackgroundTransparency = 0.2
-	MinimizeIcon.Text = "−"
-	MinimizeIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
-	MinimizeIcon.TextSize = 30
-	MinimizeIcon.Font = Enum.Font.GothamBold
+	MinimizeIcon.BackgroundTransparency = 1
+	MinimizeIcon.Image = "rbxassetid://128010543125125"
 	MinimizeIcon.Parent = MinimizeIconGui
 
 	local IconCorner = Instance.new("UICorner")
@@ -471,11 +481,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	--// Elytra-UI: Minimize Icon hover animation
 	ElytraConnect(MinimizeIcon.MouseEnter, function()
-		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 55, 0, 55), BackgroundColor3 = Color3.fromRGB(60, 60, 60) })
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 55, 0, 55) })
 	end)
 
 	ElytraConnect(MinimizeIcon.MouseLeave, function()
-		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 50, 0, 50), BackgroundColor3 = Color3.fromRGB(40, 40, 40) })
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 50, 0, 50) })
 	end)
 
 	--// Elytra-UI: Minimize Icon click to toggle window
@@ -780,7 +790,26 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["Key"] = "Enum.KeyCode."
 		}
 
+		local LastClickTime = 0
+		local CurrentKey = nil
+
 		ElytraConnect(Dropdown.MouseButton1Click, function()
+			local CurrentTime = tick()
+
+			-- Check for double click (within 0.3s)
+			if CurrentTime - LastClickTime < 0.3 then
+				-- Double click detected - unbind keybind
+				CurrentKey = nil
+				SetProperty(Bind, { Text = "None" })
+				--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
+				task.delay(0.3, function()
+					Settings.Callback(nil)
+				end)
+				LastClickTime = 0
+				return
+			end
+
+			LastClickTime = CurrentTime
 			local Time = tick();
 			local Detect, Finished
 
@@ -792,6 +821,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 					Finished = (true)
 
 					if table.find(Mouse, InputType) then
+						CurrentKey = Key
 						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key);
@@ -800,6 +830,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 							Text = tostring(InputType):gsub(Types.Mouse, "MB")
 						})
 					elseif InputType == Enum.UserInputType.Keyboard then
+						CurrentKey = Key
 						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key);
