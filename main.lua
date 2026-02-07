@@ -53,6 +53,43 @@ local Theme = { --// (Dark Theme)
 	Icon = Color3.fromRGB(220, 220, 220),
 }
 
+--// Predefined Themes
+local Themes = {
+	Light = {
+		Primary = Color3.fromRGB(232, 232, 232),
+		Secondary = Color3.fromRGB(255, 255, 255),
+		Component = Color3.fromRGB(245, 245, 245),
+		Interactables = Color3.fromRGB(235, 235, 235),
+		Tab = Color3.fromRGB(50, 50, 50),
+		Title = Color3.fromRGB(0, 0, 0),
+		Description = Color3.fromRGB(100, 100, 100),
+		Outline = Color3.fromRGB(210, 210, 210),
+		Icon = Color3.fromRGB(100, 100, 100)
+	},
+	Dark = {
+		Primary = Color3.fromRGB(30, 30, 30),
+		Secondary = Color3.fromRGB(35, 35, 35),
+		Component = Color3.fromRGB(40, 40, 40),
+		Interactables = Color3.fromRGB(45, 45, 45),
+		Tab = Color3.fromRGB(200, 200, 200),
+		Title = Color3.fromRGB(240, 240, 240),
+		Description = Color3.fromRGB(200, 200, 200),
+		Outline = Color3.fromRGB(40, 40, 40),
+		Icon = Color3.fromRGB(220, 220, 220)
+	},
+	Void = {
+		Primary = Color3.fromRGB(15, 15, 15),
+		Secondary = Color3.fromRGB(20, 20, 20),
+		Component = Color3.fromRGB(25, 25, 25),
+		Interactables = Color3.fromRGB(30, 30, 30),
+		Tab = Color3.fromRGB(200, 200, 200),
+		Title = Color3.fromRGB(240, 240, 240),
+		Description = Color3.fromRGB(200, 200, 200),
+		Outline = Color3.fromRGB(40, 40, 40),
+		Icon = Color3.fromRGB(220, 220, 220)
+	}
+}
+
 --// Services & Functions
 local Type, Blur = nil
 local LocalPlayer = GetService(game, "Players").LocalPlayer;
@@ -1020,8 +1057,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Create mini bar frame inside the Sidebar (left side)
 		local MiniBarFrame = Instance.new("Frame")
 		MiniBarFrame.Name = "MiniBar"
-		MiniBarFrame.Size = UDim2.new(1, -10, 0, 80)
-		MiniBarFrame.Position = UDim2.new(0, 5, 1, -90) -- Bottom of Sidebar
+		MiniBarFrame.Size = UDim2.new(1, -10, 0, 60) -- Reduced height
+		MiniBarFrame.Position = UDim2.new(0, 5, 1, -70) -- Bottom of Sidebar
 		MiniBarFrame.BackgroundColor3 = Theme.Secondary
 		MiniBarFrame.BackgroundTransparency = 0.1
 		MiniBarFrame.BorderSizePixel = 0
@@ -1034,8 +1071,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Player icon (left side) - use player avatar
 		local PlayerIcon = Instance.new("ImageLabel")
 		PlayerIcon.Name = "PlayerIcon"
-		PlayerIcon.Size = UDim2.new(0, 50, 0, 50)
-		PlayerIcon.Position = UDim2.new(0, 8, 0, 15)
+		PlayerIcon.Size = UDim2.new(0, 40, 0, 40) -- Smaller icon
+		PlayerIcon.Position = UDim2.new(0, 8, 0.5, -20) -- Centered vertically
 		PlayerIcon.BackgroundColor3 = Theme.Primary
 		PlayerIcon.BackgroundTransparency = 0
 		PlayerIcon.BorderSizePixel = 0
@@ -1051,26 +1088,26 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.Parent = MiniBarFrame
 
 		local IconCorner = Instance.new("UICorner")
-		IconCorner.CornerRadius = UDim.new(0, 8)
+		IconCorner.CornerRadius = UDim.new(0, 6)
 		IconCorner.Parent = PlayerIcon
 
 		-- Info container (right side)
 		local InfoContainer = Instance.new("Frame")
 		InfoContainer.Name = "InfoContainer"
-		InfoContainer.Size = UDim2.new(1, -65, 1, -10)
-		InfoContainer.Position = UDim2.new(0, 60, 0, 5)
+		InfoContainer.Size = UDim2.new(1, -55, 1, -10)
+		InfoContainer.Position = UDim2.new(0, 50, 0, 5)
 		InfoContainer.BackgroundTransparency = 1
 		InfoContainer.BorderSizePixel = 0
 		InfoContainer.Parent = MiniBarFrame
 
-		-- Hub name (top right)
+		-- Hub name (top)
 		local HubNameLabel = Instance.new("TextLabel")
 		HubNameLabel.Name = "HubName"
-		HubNameLabel.Size = UDim2.new(1, 0, 0, 16)
+		HubNameLabel.Size = UDim2.new(1, 0, 0, 14)
 		HubNameLabel.Position = UDim2.new(0, 0, 0, 0)
 		HubNameLabel.BackgroundTransparency = 1
 		HubNameLabel.TextColor3 = Theme.Title
-		HubNameLabel.TextSize = 14
+		HubNameLabel.TextSize = 12
 		HubNameLabel.Font = Enum.Font.GothamBold
 		HubNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 		HubNameLabel.Text = ElytraUI.HubSettings.HubName
@@ -1079,11 +1116,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Game name (middle)
 		local GameNameLabel = Instance.new("TextLabel")
 		GameNameLabel.Name = "GameName"
-		GameNameLabel.Size = UDim2.new(1, 0, 0, 14)
-		GameNameLabel.Position = UDim2.new(0, 0, 0, 18)
+		GameNameLabel.Size = UDim2.new(1, 0, 0, 12)
+		GameNameLabel.Position = UDim2.new(0, 0, 0, 16)
 		GameNameLabel.BackgroundTransparency = 1
 		GameNameLabel.TextColor3 = Theme.Tab
-		GameNameLabel.TextSize = 12
+		GameNameLabel.TextSize = 10
 		GameNameLabel.Font = Enum.Font.Gotham
 		GameNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 		GameNameLabel.Text = ElytraUI.HubSettings.GameName
@@ -1092,11 +1129,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Player name (bottom)
 		local PlayerNameLabel = Instance.new("TextLabel")
 		PlayerNameLabel.Name = "PlayerName"
-		PlayerNameLabel.Size = UDim2.new(1, 0, 0, 14)
-		PlayerNameLabel.Position = UDim2.new(0, 0, 0, 34)
+		PlayerNameLabel.Size = UDim2.new(1, 0, 0, 12)
+		PlayerNameLabel.Position = UDim2.new(0, 0, 0, 30)
 		PlayerNameLabel.BackgroundTransparency = 1
 		PlayerNameLabel.TextColor3 = Theme.Description
-		PlayerNameLabel.TextSize = 12
+		PlayerNameLabel.TextSize = 10
 		PlayerNameLabel.Font = Enum.Font.Gotham
 		PlayerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 		PlayerNameLabel.Text = LocalPlayer.Name
@@ -1362,23 +1399,24 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Bind = Dropdown["Main"].Options;
 		local MainFrame = Dropdown["Main"];
 
-		-- Adjust Bind size to make room for UnbindButton on the left
-		Bind.Size = UDim2.new(1, -75, 1, 0) -- Reduce width to accommodate UnbindButton
-		Bind.Position = UDim2.new(0, 65, 0, 0) -- Shift Bind to the right
+		-- Redesign keybind component: Unbind button on left, keybind display on right
+		-- Reset Bind to original size and position
+		Bind.Size = UDim2.new(1, -70, 1, 0)
+		Bind.Position = UDim2.new(0, 65, 0, 0)
 
-		-- Create unbind button (separate from keybind display, clearly visible)
+		-- Create unbind button (left side)
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
-		UnbindButton.Size = UDim2.new(0, 60, 0, 18)
-		UnbindButton.Position = UDim2.new(0, 5, 0.5, -9) -- Position on the left
+		UnbindButton.Size = UDim2.new(0, 55, 0, 20)
+		UnbindButton.Position = UDim2.new(0, 5, 0.5, -10)
 		UnbindButton.BackgroundColor3 = Theme.Interactables
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
-		UnbindButton.Text = "Unbind"
+		UnbindButton.Text = "✕"
 		UnbindButton.TextColor3 = Theme.Description
-		UnbindButton.TextSize = 10
-		UnbindButton.Font = Enum.Font.Gotham
-		UnbindButton.ZIndex = 2 -- Ensure button is above other elements
+		UnbindButton.TextSize = 14
+		UnbindButton.Font = Enum.Font.GothamBold
+		UnbindButton.ZIndex = 3
 		UnbindButton.Parent = MainFrame
 
 		local UnbindCorner = Instance.new("UICorner")
@@ -1390,7 +1428,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Hover animation for unbind button
 		ElytraConnect(UnbindButton.MouseEnter, function()
-			Tween(UnbindButton, .15, { BackgroundColor3 = Color(Theme.Interactables, 10, Setup.ThemeMode) })
+			Tween(UnbindButton, .15, { BackgroundColor3 = Color3.fromRGB(200, 60, 60) })
 		end)
 
 		ElytraConnect(UnbindButton.MouseLeave, function()
@@ -1403,36 +1441,26 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Unbind button click handler
 		ElytraConnect(UnbindButton.MouseButton1Click, function()
-			if not CurrentKey then return end -- Only unbind if key is set
+			if not CurrentKey then return end
 
-			-- Disconnect any active detection connection
 			if DetectConnection then
 				DetectConnection:Disconnect()
 				DetectConnection = nil
 			end
 
-			-- Unbind keybind
 			CurrentKey = nil
 			SetProperty(Bind, { Text = "None" })
-			UnbindButton.Text = "Unbind"
-			UnbindButton.TextColor3 = Theme.Description
-
-			-- Call callback with nil after delay
-			task.delay(0.3, function()
-				Settings.Callback(nil)
-				IsBinding = false
-			end)
+			Settings.Callback(nil)
+			IsBinding = false
 		end)
 
-		-- Keybind click handler
+		-- Keybind click handler - click on the keybind display area
 		ElytraConnect(Dropdown.MouseButton1Click, function()
 			if IsBinding then return end
 
 			IsBinding = true
-			SetProperty(Bind, { Text = "..." });
-			UnbindButton.Text = "..."
+			SetProperty(Bind, { Text = "..." })
 
-			-- Disconnect previous detection connection if exists
 			if DetectConnection then
 				DetectConnection:Disconnect()
 				DetectConnection = nil
@@ -1441,35 +1469,26 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			-- Start listening for key input
 			DetectConnection = ElytraConnect(game.UserInputService.InputBegan, function(Key, Focused)
 				if not Focused then
-					-- Disconnect detection connection
 					if DetectConnection then
 						DetectConnection:Disconnect()
 						DetectConnection = nil
 					end
 
-					-- Prevent mouse button binding - only allow keyboard keys
 					if Key.KeyCode and Key.KeyCode ~= Enum.KeyCode.Unknown then
-						-- Keyboard key pressed
 						CurrentKey = Key.KeyCode
 						local KeyName = tostring(Key.KeyCode):gsub("Enum%..*%.", "")
 						SetProperty(Bind, { Text = KeyName })
-						UnbindButton.Text = "Unbind"
-						UnbindButton.TextColor3 = Theme.Title
-						-- Call callback after delay to prevent immediate activation
-						task.delay(0.3, function()
+						task.delay(0.1, function()
 							Settings.Callback(Key.KeyCode)
 							IsBinding = false
 						end)
 					else
-						-- Mouse button or unknown input - reset
 						if CurrentKey then
 							local KeyName = tostring(CurrentKey):gsub("Enum%..*%.", "")
 							SetProperty(Bind, { Text = KeyName })
 						else
 							SetProperty(Bind, { Text = "None" })
 						end
-						UnbindButton.Text = "Unbind"
-						UnbindButton.TextColor3 = Theme.Description
 						IsBinding = false
 					end
 				end
@@ -1632,7 +1651,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		})
 	end
 
-	function Options:AddParagraph(Settings: { Title: string, Description: string, Tab: Instance }) 
+	function Options:AddParagraph(Settings: { Title: string, Description: string, Tab: Instance })
 		local Paragraph = Clone(Components["Paragraph"]);
 		local Title, Description = Options:GetLabels(Paragraph);
 
@@ -1644,7 +1663,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		})
 	end
 
-	local Themes = {
+	local ThemeHandlers = {
 		Names = {
 			["Paragraph"] = function(Label)
 				if Label:IsA("TextButton") and Theme.Component then
@@ -1821,7 +1840,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		self:UpdateKeybindPanelColors()
 
 		for Index, Descendant in next, Screen:GetDescendants() do
-			local Name, Class =  Themes.Names[Descendant.Name],  Themes.Classes[Descendant.ClassName]
+			local Name, Class =  ThemeHandlers.Names[Descendant.Name],  ThemeHandlers.Classes[Descendant.ClassName]
 
 			if Name then
 				Name(Descendant);
