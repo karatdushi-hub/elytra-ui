@@ -843,44 +843,48 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local Themes = {
 		Names = {
 			["Paragraph"] = function(Label)
-				if Label:IsA("TextButton") then
+				if Label:IsA("TextButton") and Theme.Component then
 					Label.BackgroundColor3 = Color(Theme.Component, 5, "Dark");
 				end
 			end,
 
 			["Title"] = function(Label)
-				if Label:IsA("TextLabel") then
+				if Label:IsA("TextLabel") and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["Description"] = function(Label)
-				if Label:IsA("TextLabel") then
+				if Label:IsA("TextLabel") and Theme.Description then
 					Label.TextColor3 = Theme.Description
 				end
 			end,
 
 			["Section"] = function(Label)
-				if Label:IsA("TextLabel") then
+				if Label:IsA("TextLabel") and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["Options"] = function(Label)
-				if Label:IsA("TextLabel") and Label.Parent.Name == "Main" then
+				if Label:IsA("TextLabel") and Label.Parent.Name == "Main" and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["Notification"] = function(Label)
 				if Label:IsA("CanvasGroup") then
-					Label.BackgroundColor3 = Theme.Primary
-					Label.UIStroke.Color = Theme.Outline
+					if Theme.Primary then
+						Label.BackgroundColor3 = Theme.Primary
+					end
+					if Theme.Outline and Label.UIStroke then
+						Label.UIStroke.Color = Theme.Outline
+					end
 				end
 			end,
 
 			["TextLabel"] = function(Label)
-				if Label:IsA("TextLabel") and Label.Parent:FindFirstChild("List") then
+				if Label:IsA("TextLabel") and Label.Parent:FindFirstChild("List") and Theme.Tab then
 					Label.TextColor3 = Theme.Tab
 				end
 			end,
@@ -888,58 +892,66 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["Main"] = function(Label)
 				if Label:IsA("Frame") then
 
-					if Label.Parent == Window then
+					if Label.Parent == Window and Theme.Secondary then
 						Label.BackgroundColor3 = Theme.Secondary
 					elseif Label.Parent:FindFirstChild("Value") then
 						local Toggle = Label.Parent.Value
 						local Circle = Label:FindFirstChild("Circle")
 
 						if not Toggle.Value then
-							Label.BackgroundColor3 = Theme.Interactables
-							Label.Circle.BackgroundColor3 = Theme.Primary
+							if Theme.Interactables then
+								Label.BackgroundColor3 = Theme.Interactables
+							end
+							if Theme.Primary and Circle then
+								Circle.BackgroundColor3 = Theme.Primary
+							end
 						end
 					else
-						Label.BackgroundColor3 = Theme.Interactables
+						if Theme.Interactables then
+							Label.BackgroundColor3 = Theme.Interactables
+						end
 					end
-				elseif Label:FindFirstChild("Padding") then
+				elseif Label:FindFirstChild("Padding") and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["Amount"] = function(Label)
-				if Label:IsA("Frame") then
+				if Label:IsA("Frame") and Theme.Interactables then
 					Label.BackgroundColor3 = Theme.Interactables
 				end
 			end,
 
 			["Slide"] = function(Label)
-				if Label:IsA("Frame") then
+				if Label:IsA("Frame") and Theme.Interactables then
 					Label.BackgroundColor3 = Theme.Interactables
 				end
 			end,
 
 			["Input"] = function(Label)
-				if Label:IsA("TextLabel") then
+				if Label:IsA("TextLabel") and Theme.Title then
 					Label.TextColor3 = Theme.Title
-				elseif Label:FindFirstChild("Labels") then
+				elseif Label:FindFirstChild("Labels") and Theme.Component then
 					Label.BackgroundColor3 = Theme.Component
-				elseif Label:IsA("TextBox") and Label.Parent.Name == "Main" then
+				elseif Label:IsA("TextBox") and Label.Parent.Name == "Main" and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["Outline"] = function(Stroke)
-				if Stroke:IsA("UIStroke") then
+				if Stroke:IsA("UIStroke") and Theme.Outline then
 					Stroke.Color = Theme.Outline
 				end
 			end,
 
 			["DropdownExample"] = function(Label)
-				Label.BackgroundColor3 = Theme.Secondary
+				if Theme.Secondary then
+					Label.BackgroundColor3 = Theme.Secondary
+				end
 			end,
 
 			["Underline"] = function(Label)
-				if Label:IsA("Frame") then
+				if Label:IsA("Frame") and Theme.Outline then
 					Label.BackgroundColor3 = Theme.Outline
 				end
 			end,
@@ -947,25 +959,27 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		Classes = {
 			["ImageLabel"] = function(Label)
-				if Label.Image ~= "rbxassetid://6644618143" then
+				if Label.Image ~= "rbxassetid://6644618143" and Theme.Icon then
 					Label.ImageColor3 = Theme.Icon
 				end
 			end,
 
 			["TextLabel"] = function(Label)
-				if Label:FindFirstChild("Padding") then
+				if Label:FindFirstChild("Padding") and Theme.Title then
 					Label.TextColor3 = Theme.Title
 				end
 			end,
 
 			["TextButton"] = function(Label)
-				if Label:FindFirstChild("Labels") then
+				if Label:FindFirstChild("Labels") and Theme.Component then
 					Label.BackgroundColor3 = Theme.Component
 				end
 			end,
 
 			["ScrollingFrame"] = function(Label)
-				Label.ScrollBarImageColor3 = Theme.Component
+				if Theme.Component then
+					Label.ScrollBarImageColor3 = Theme.Component
+				end
 			end,
 		},
 	}
@@ -975,7 +989,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		Window.BackgroundColor3 = Theme.Primary
 		Holder.BackgroundColor3 = Theme.Secondary
-		Window.UIStroke.Color = Theme.Shadow
+		if Theme.Shadow then
+			Window.UIStroke.Color = Theme.Shadow
+		end
 
 		for Index, Descendant in next, Screen:GetDescendants() do
 			local Name, Class =  Themes.Names[Descendant.Name],  Themes.Classes[Descendant.ClassName]
