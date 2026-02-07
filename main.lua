@@ -293,9 +293,14 @@ end
 --// Library [Window]
 
 function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparency: number, MinimizeKeybind: Enum.KeyCode?, Blurring: boolean, Theme: string })
-	--// Elytra-UI Protection: Prevent multiple windows
+	--// Elytra-UI Protection: Auto unload if window already exists
 	if ElytraUI.WindowCreated then
-		error("[Elytra-UI]: Window already exists! Only one window can be created at a time.")
+		-- Call unload on existing window if available
+		if ElytraUI.CurrentWindow and ElytraUI.CurrentWindow.Unload then
+			ElytraUI.CurrentWindow:Unload()
+		else
+			error("[Elytra-UI]: Window already exists! Only one window can be created at a time.")
+		end
 	end
 	ElytraUI.WindowCreated = true
 
@@ -313,6 +318,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local WindowConnections = {} -- Store all connections for unload
 	local IsAnimating = false -- Prevent rapid minimize/maximize
 	local DropdownOpen = false -- Prevent multiple dropdowns open
+	local KeybindLabels = {} -- Store keybind labels for display
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -383,6 +389,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Reset window created flag
 		ElytraUI.WindowCreated = false
+		ElytraUI.CurrentWindow = nil
 
 		-- Clear active functions
 		ElytraUI.ActiveFunctions = {}
@@ -391,6 +398,38 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		if ElytraUI.MinimizeIcon and ElytraUI.MinimizeIcon.Parent then
 			ElytraUI.MinimizeIcon.Parent:Destroy()
 		end
+
+		-- Destroy keybind panel
+		if ElytraUI.KeybindPanelGui then
+			ElytraUI.KeybindPanelGui:Destroy()
+		end
+	end
+
+	--// Elytra-UI: AddKeybindLabel function to display keybinds on panel
+	function Options:AddKeybindLabel(Name, Key)
+		if not ElytraUI.KeybindPanel then return end
+
+		-- Remove existing label with same name
+		if KeybindLabels[Name] then
+			KeybindLabels[Name]:Destroy()
+		end
+
+		local KeybindLabel = Instance.new("TextLabel")
+		KeybindLabel.Name = Name
+		KeybindLabel.Size = UDim2.new(1, -10, 0, 20)
+		KeybindLabel.BackgroundTransparency = 1
+		KeybindLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+		KeybindLabel.TextSize = 14
+		KeybindLabel.Font = Enum.Font.Gotham
+		KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
+		KeybindLabel.Text = Name .. ": " .. tostring(Key)
+		KeybindLabel.Parent = ElytraUI.KeybindPanel
+
+		KeybindLabels[Name] = KeybindLabel
+
+		-- Update panel size
+		local childCount = #ElytraUI.KeybindPanel:GetChildren()
+		ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
 	end
 
 	--// Elytra-UI: Custom Connect function to store connections
@@ -406,23 +445,21 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	MinimizeIconGui.ResetOnSpawn = false
 	MinimizeIconGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-	local MinimizeIcon = Instance.new("ImageButton")
+	local MinimizeIcon = Instance.new("TextButton")
 	MinimizeIcon.Name = "MinimizeIcon"
 	MinimizeIcon.Size = UDim2.new(0, 50, 0, 50)
 	MinimizeIcon.Position = UDim2.new(0, 10, 0.5, -25)
-	MinimizeIcon.BackgroundTransparency = 1
-	MinimizeIcon.Image = "rbxassetid://128010543125125"
+	MinimizeIcon.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	MinimizeIcon.BackgroundTransparency = 0.2
+	MinimizeIcon.Text = "−"
+	MinimizeIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+	MinimizeIcon.TextSize = 30
+	MinimizeIcon.Font = Enum.Font.GothamBold
 	MinimizeIcon.Parent = MinimizeIconGui
 
 	local IconCorner = Instance.new("UICorner")
 	IconCorner.CornerRadius = UDim.new(0, 8)
 	IconCorner.Parent = MinimizeIcon
-
-	local IconStroke = Instance.new("UIStroke")
-	IconStroke.Color = Color3.fromRGB(40, 40, 40)
-	IconStroke.Thickness = 2
-	IconStroke.Transparency = 0.5
-	IconStroke.Parent = MinimizeIcon
 
 	xpcall(function()
 		MinimizeIconGui.Parent = game.CoreGui
@@ -434,17 +471,54 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	--// Elytra-UI: Minimize Icon hover animation
 	ElytraConnect(MinimizeIcon.MouseEnter, function()
-		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 55, 0, 55) })
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 55, 0, 55), BackgroundColor3 = Color3.fromRGB(60, 60, 60) })
 	end)
 
 	ElytraConnect(MinimizeIcon.MouseLeave, function()
-		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 50, 0, 50) })
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 50, 0, 50), BackgroundColor3 = Color3.fromRGB(40, 40, 40) })
 	end)
 
 	--// Elytra-UI: Minimize Icon click to toggle window
 	ElytraConnect(MinimizeIcon.MouseButton1Click, function()
 		Close()
 	end)
+
+	--// Elytra-UI: Create Keybind Panel (top right)
+	local KeybindPanelGui = Instance.new("ScreenGui")
+	KeybindPanelGui.Name = "ElytraKeybindPanelGui"
+	KeybindPanelGui.ResetOnSpawn = false
+	KeybindPanelGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+	local KeybindPanel = Instance.new("Frame")
+	KeybindPanel.Name = "KeybindPanel"
+	KeybindPanel.Size = UDim2.new(0, 200, 0, 30)
+	KeybindPanel.Position = UDim2.new(1, -210, 0, 10)
+	KeybindPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	KeybindPanel.BackgroundTransparency = 0.2
+	KeybindPanel.Parent = KeybindPanelGui
+
+	local PanelCorner = Instance.new("UICorner")
+	PanelCorner.CornerRadius = UDim.new(0, 6)
+	PanelCorner.Parent = KeybindPanel
+
+	local PanelStroke = Instance.new("UIStroke")
+	PanelStroke.Color = Color3.fromRGB(40, 40, 40)
+	PanelStroke.Thickness = 1
+	PanelStroke.Transparency = 0.5
+	PanelStroke.Parent = KeybindPanel
+
+	local KeybindListLayout = Instance.new("UIListLayout")
+	KeybindListLayout.Padding = UDim.new(0, 5)
+	KeybindListLayout.Parent = KeybindPanel
+
+	xpcall(function()
+		KeybindPanelGui.Parent = game.CoreGui
+	end, function()
+		KeybindPanelGui.Parent = Player.GUI
+	end)
+
+	ElytraUI.KeybindPanel = KeybindPanel
+	ElytraUI.KeybindPanelGui = KeybindPanelGui
 
 	for Index, Button in next, Sidebar.Top.Buttons:GetChildren() do
 		if Button:IsA("TextButton") then
@@ -718,12 +792,18 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 					Finished = (true)
 
 					if table.find(Mouse, InputType) then
-						Settings.Callback(Key);
+						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
+						task.delay(0.3, function()
+							Settings.Callback(Key);
+						end)
 						SetProperty(Bind, {
 							Text = tostring(InputType):gsub(Types.Mouse, "MB")
 						})
 					elseif InputType == Enum.UserInputType.Keyboard then
-						Settings.Callback(Key);
+						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
+						task.delay(0.3, function()
+							Settings.Callback(Key);
+						end)
 						SetProperty(Bind, {
 							Text = tostring(Key.KeyCode):gsub(Types.Key, "")
 						})
@@ -1128,6 +1208,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	SetProperty(Window, { Size = Settings.Size, Visible = true, Parent = Screen });
 	Animations:Open(Window, Settings.Transparency or 0)
+
+	--// Elytra-UI: Store reference to current window for auto unload
+	ElytraUI.CurrentWindow = Options
 
 	return Options
 end
