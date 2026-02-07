@@ -386,6 +386,18 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Clear active functions
 		ElytraUI.ActiveFunctions = {}
+
+		-- Destroy minimize icon
+		if ElytraUI.MinimizeIcon and ElytraUI.MinimizeIcon.Parent then
+			ElytraUI.MinimizeIcon.Parent:Destroy()
+		end
+	end
+
+	--// Elytra-UI: Custom Connect function to store connections
+	local function ElytraConnect(Signal, Callback)
+		local Connection = Signal:Connect(Callback)
+		table.insert(WindowConnections, Connection)
+		return Connection
 	end
 
 	--// Elytra-UI: Create Minimize Icon
@@ -433,13 +445,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	ElytraConnect(MinimizeIcon.MouseButton1Click, function()
 		Close()
 	end)
-
-	--// Elytra-UI: Custom Connect function to store connections
-	local function ElytraConnect(Signal, Callback)
-		local Connection = Signal:Connect(Callback)
-		table.insert(WindowConnections, Connection)
-		return Connection
-	end
 
 	for Index, Button in next, Sidebar.Top.Buttons:GetChildren() do
 		if Button:IsA("TextButton") then
