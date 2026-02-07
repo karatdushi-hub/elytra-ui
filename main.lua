@@ -787,53 +787,77 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Title, Description = Options:GetLabels(Dropdown);
 		local Bind = Dropdown["Main"].Options;
 
-		local LastClickTime = 0
+		-- Create unbind button (white square with rounded corners)
+		local UnbindButton = Instance.new("TextButton")
+		UnbindButton.Name = "UnbindButton"
+		UnbindButton.Size = UDim2.new(0, 20, 0, 20)
+		UnbindButton.Position = UDim2.new(1, -25, 0.5, -10)
+		UnbindButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		UnbindButton.BackgroundTransparency = 0
+		UnbindButton.BorderSizePixel = 0
+		UnbindButton.Text = ""
+		UnbindButton.Parent = Dropdown["Main"]
+
+		local UnbindCorner = Instance.new("UICorner")
+		UnbindCorner.CornerRadius = UDim.new(0, 4)
+		UnbindCorner.Parent = UnbindButton
+
+		-- Create inner black square (shows when keybind is set)
+		local InnerSquare = Instance.new("Frame")
+		InnerSquare.Name = "InnerSquare"
+		InnerSquare.Size = UDim2.new(0, 12, 0, 12)
+		InnerSquare.Position = UDim2.new(0.5, -6, 0.5, -6)
+		InnerSquare.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		InnerSquare.BackgroundTransparency = 1
+		InnerSquare.BorderSizePixel = 0
+		InnerSquare.Visible = false
+		InnerSquare.Parent = UnbindButton
+
+		local InnerCorner = Instance.new("UICorner")
+		InnerCorner.CornerRadius = UDim.new(0, 2)
+		InnerCorner.Parent = InnerSquare
+
 		local CurrentKey = nil
-		local PreviousKey = nil -- Store previous key to restore if binding is cancelled
 		local DetectConnection = nil
-		local IsBinding = false -- Prevent re-binding during 0.3s delay
+		local IsBinding = false
 
-		ElytraConnect(Dropdown.MouseButton1Click, function()
-			if IsBinding then return end -- Prevent re-binding during delay
+		-- Function to update unbind button visibility
+		local UpdateUnbindButton = function()
+			if CurrentKey then
+				InnerSquare.Visible = true
+				InnerSquare.BackgroundTransparency = 0
+			else
+				InnerSquare.Visible = false
+			end
+		end
 
-			local CurrentTime = tick()
+		-- Unbind button click handler
+		ElytraConnect(UnbindButton.MouseButton1Click, function()
+			if not CurrentKey then return end -- Only unbind if key is set
 
-			-- Check for double click (within 0.3s)
-			if CurrentTime - LastClickTime < 0.3 then
-				-- Double click detected - unbind keybind
-				CurrentKey = nil
-				PreviousKey = nil
-				SetProperty(Bind, { Text = "None" })
-				-- Remove from keybind panel
-				if KeybindLabels[Settings.Title] then
-					KeybindLabels[Settings.Title]:Destroy()
-					KeybindLabels[Settings.Title] = nil
-					-- Update panel size
-					local childCount = 0
-					for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
-						if child:IsA("TextLabel") then
-							childCount = childCount + 1
-						end
-					end
-					ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
-				end
-				-- Disconnect any active detection connection
-				if DetectConnection then
-					DetectConnection:Disconnect()
-					DetectConnection = nil
-				end
-				-- Call callback with nil after delay to prevent immediate activation
-				task.delay(0.3, function()
-					Settings.Callback(nil)
-					IsBinding = false
-				end)
-				LastClickTime = 0
-				return
+			-- Disconnect any active detection connection
+			if DetectConnection then
+				DetectConnection:Disconnect()
+				DetectConnection = nil
 			end
 
-			LastClickTime = CurrentTime
+			-- Unbind keybind
+			CurrentKey = nil
+			SetProperty(Bind, { Text = "None" })
+			UpdateUnbindButton()
+
+			-- Call callback with nil after delay
+			task.delay(0.3, function()
+				Settings.Callback(nil)
+				IsBinding = false
+			end)
+		end)
+
+		-- Keybind click handler
+		ElytraConnect(Dropdown.MouseButton1Click, function()
+			if IsBinding then return end
+
 			IsBinding = true
-			PreviousKey = CurrentKey -- Store previous key
 			SetProperty(Bind, { Text = "..." });
 
 			-- Disconnect previous detection connection if exists
@@ -857,17 +881,16 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						CurrentKey = Key.KeyCode
 						local KeyName = tostring(Key.KeyCode):gsub("Enum%..*%.", "")
 						SetProperty(Bind, { Text = KeyName })
+						UpdateUnbindButton()
 						-- Call callback after delay to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key.KeyCode)
 							IsBinding = false
 						end)
-						-- Update keybind panel to show selected key
-						Options:AddKeybindLabel(Settings.Title, KeyName)
 					else
-						-- Mouse button or unknown input - restore previous key
-						if PreviousKey then
-							local KeyName = tostring(PreviousKey):gsub("Enum%..*%.", "")
+						-- Mouse button or unknown input - reset
+						if CurrentKey then
+							local KeyName = tostring(CurrentKey):gsub("Enum%..*%.", "")
 							SetProperty(Bind, { Text = KeyName })
 						else
 							SetProperty(Bind, { Text = "None" })
