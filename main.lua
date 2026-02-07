@@ -418,12 +418,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Don't display if Key is nil (None)
 		if not Key then return end
 
-		-- Format key name properly
+		-- Format key name properly - remove Enum.KeyCode. prefix
 		local KeyName = ""
 		if typeof(Key) == "string" then
-			KeyName = Key
+			KeyName = Key:gsub("Enum%..*%.", "") -- Remove any Enum prefix
 		elseif typeof(Key) == "EnumItem" then
-			KeyName = tostring(Key):gsub("Enum%.", "")
+			KeyName = tostring(Key):gsub("Enum%..*%.", "") -- Remove any Enum prefix
 		end
 
 		local KeybindLabel = Instance.new("TextLabel")
@@ -789,6 +789,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		local LastClickTime = 0
 		local CurrentKey = nil
+		local PreviousKey = nil -- Store previous key to restore if binding is cancelled
 		local DetectConnection = nil
 		local IsBinding = false -- Prevent re-binding during 0.3s delay
 
@@ -801,8 +802,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			if CurrentTime - LastClickTime < 0.3 then
 				-- Double click detected - unbind keybind
 				CurrentKey = nil
+				PreviousKey = nil
 				SetProperty(Bind, { Text = "None" })
-				-- Explicitly remove from keybind panel
+				-- Remove from keybind panel
 				if KeybindLabels[Settings.Title] then
 					KeybindLabels[Settings.Title]:Destroy()
 					KeybindLabels[Settings.Title] = nil
@@ -815,7 +817,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 					end
 					ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
 				end
-				--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
+				-- Disconnect any active detection connection
+				if DetectConnection then
+					DetectConnection:Disconnect()
+					DetectConnection = nil
+				end
+				-- Call callback with nil after delay to prevent immediate activation
 				task.delay(0.3, function()
 					Settings.Callback(nil)
 					IsBinding = false
@@ -826,6 +833,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 			LastClickTime = CurrentTime
 			IsBinding = true
+			PreviousKey = CurrentKey -- Store previous key
 			SetProperty(Bind, { Text = "..." });
 
 			-- Disconnect previous detection connection if exists
@@ -843,13 +851,13 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						DetectConnection = nil
 					end
 
-					--// Elytra-UI: Prevent mouse button binding - only allow keyboard keys
+					-- Prevent mouse button binding - only allow keyboard keys
 					if Key.KeyCode and Key.KeyCode ~= Enum.KeyCode.Unknown then
 						-- Keyboard key pressed
 						CurrentKey = Key.KeyCode
-						local KeyName = tostring(Key.KeyCode):gsub("Enum.KeyCode.", "")
+						local KeyName = tostring(Key.KeyCode):gsub("Enum%..*%.", "")
 						SetProperty(Bind, { Text = KeyName })
-						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
+						-- Call callback after delay to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key.KeyCode)
 							IsBinding = false
@@ -857,8 +865,13 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						-- Update keybind panel to show selected key
 						Options:AddKeybindLabel(Settings.Title, KeyName)
 					else
-						-- Mouse button or unknown input - ignore and reset
-						SetProperty(Bind, { Text = "None" })
+						-- Mouse button or unknown input - restore previous key
+						if PreviousKey then
+							local KeyName = tostring(PreviousKey):gsub("Enum%..*%.", "")
+							SetProperty(Bind, { Text = KeyName })
+						else
+							SetProperty(Bind, { Text = "None" })
+						end
 						IsBinding = false
 					end
 				end
