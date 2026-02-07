@@ -412,20 +412,18 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Remove existing label with same name
 		if KeybindLabels[Name] then
 			KeybindLabels[Name]:Destroy()
+			KeybindLabels[Name] = nil
 		end
 
+		-- Don't display if Key is nil (None)
+		if not Key then return end
+
 		-- Format key name properly
-		local KeyName = "None"
-		if Key then
-			if typeof(Key) == "table" and Key.KeyCode then
-				KeyName = tostring(Key.KeyCode):gsub("Enum.KeyCode.", "")
-			elseif typeof(Key) == "table" and Key.UserInputType then
-				KeyName = tostring(Key.UserInputType):gsub("Enum.UserInputType.", "")
-			elseif typeof(Key) == "string" then
-				KeyName = Key
-			elseif typeof(Key) == "EnumItem" then
-				KeyName = tostring(Key):gsub("Enum%.", "")
-			end
+		local KeyName = ""
+		if typeof(Key) == "string" then
+			KeyName = Key
+		elseif typeof(Key) == "EnumItem" then
+			KeyName = tostring(Key):gsub("Enum%.", "")
 		end
 
 		local KeybindLabel = Instance.new("TextLabel")
@@ -442,7 +440,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		KeybindLabels[Name] = KeybindLabel
 
 		-- Update panel size
-		local childCount = #ElytraUI.KeybindPanel:GetChildren()
+		local childCount = 0
+		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
+			if child:IsA("TextLabel") then
+				childCount = childCount + 1
+			end
+		end
 		ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
 	end
 
@@ -787,8 +790,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local LastClickTime = 0
 		local CurrentKey = nil
 		local DetectConnection = nil
+		local IsBinding = false -- Prevent re-binding during 0.3s delay
 
 		ElytraConnect(Dropdown.MouseButton1Click, function()
+			if IsBinding then return end -- Prevent re-binding during delay
+
 			local CurrentTime = tick()
 
 			-- Check for double click (within 0.3s)
@@ -796,17 +802,22 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 				-- Double click detected - unbind keybind
 				CurrentKey = nil
 				SetProperty(Bind, { Text = "None" })
-				-- Update keybind panel to show None
-				Options:AddKeybindLabel(Settings.Title, nil)
+				-- Remove from keybind panel
+				if KeybindLabels[Settings.Title] then
+					KeybindLabels[Settings.Title]:Destroy()
+					KeybindLabels[Settings.Title] = nil
+				end
 				--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 				task.delay(0.3, function()
 					Settings.Callback(nil)
+					IsBinding = false
 				end)
 				LastClickTime = 0
 				return
 			end
 
 			LastClickTime = CurrentTime
+			IsBinding = true
 			SetProperty(Bind, { Text = "..." });
 
 			-- Disconnect previous detection connection if exists
@@ -833,12 +844,14 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key.KeyCode)
+							IsBinding = false
 						end)
 						-- Update keybind panel to show selected key
 						Options:AddKeybindLabel(Settings.Title, KeyName)
 					else
 						-- Mouse button or unknown input - ignore and reset
 						SetProperty(Bind, { Text = "None" })
+						IsBinding = false
 					end
 				end
 			end)
