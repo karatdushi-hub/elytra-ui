@@ -611,23 +611,23 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	ElytraUI.KeybindPanel = KeybindPanel
 	ElytraUI.KeybindPanelGui = KeybindPanelGui
 
-	--// Elytra-UI: Create Mini Bar (bottom left inside main panel)
+	--// Elytra-UI: Create Mini Bar (embedded in main content area)
 	local function CreateMiniBar()
-		-- Create mini bar frame inside the window
+		-- Create mini bar frame inside the Holder (main content area)
 		local MiniBarFrame = Instance.new("Frame")
 		MiniBarFrame.Name = "MiniBar"
-		MiniBarFrame.Size = UDim2.new(0, 180, 0, 80)
-		MiniBarFrame.Position = UDim2.new(0, 10, 1, -90) -- Bottom left inside window
+		MiniBarFrame.Size = UDim2.new(1, -20, 0, 80)
+		MiniBarFrame.Position = UDim2.new(0, 10, 1, -90) -- Bottom of Holder
 		MiniBarFrame.BackgroundColor3 = Theme.Secondary
 		MiniBarFrame.BackgroundTransparency = 0.1
 		MiniBarFrame.BorderSizePixel = 0
-		MiniBarFrame.Parent = Window
+		MiniBarFrame.Parent = Holder
 
 		local MiniBarCorner = Instance.new("UICorner")
 		MiniBarCorner.CornerRadius = UDim.new(0, 6)
 		MiniBarCorner.Parent = MiniBarFrame
 
-		-- Player icon (left side)
+		-- Player icon (left side) - use player avatar
 		local PlayerIcon = Instance.new("ImageLabel")
 		PlayerIcon.Name = "PlayerIcon"
 		PlayerIcon.Size = UDim2.new(0, 50, 0, 50)
@@ -635,7 +635,15 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.BackgroundColor3 = Theme.Primary
 		PlayerIcon.BackgroundTransparency = 0
 		PlayerIcon.BorderSizePixel = 0
-		PlayerIcon.Image = "rbxassetid://6626517375" -- Default player icon
+		-- Get player avatar thumbnail
+		local success, content = pcall(function()
+			return game:GetService("Players"):GetUserThumbnailAsync(
+				LocalPlayer.UserId,
+				Enum.ThumbnailType.HeadShot,
+				Enum.ThumbnailSize.Size150x150
+			)
+		end)
+		PlayerIcon.Image = success and content or "rbxassetid://6626517375" -- Fallback to default if fails
 		PlayerIcon.Parent = MiniBarFrame
 
 		local IconCorner = Instance.new("UICorner")
@@ -694,131 +702,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	end
 
 	MiniBar = CreateMiniBar()
-
-	--// Elytra-UI: Create Creator Info Panel (bottom right inside main panel)
-	local function CreateCreatorPanel()
-		local CreatorPanel = Instance.new("Frame")
-		CreatorPanel.Name = "CreatorPanel"
-		CreatorPanel.Size = UDim2.new(0, 200, 0, 90)
-		CreatorPanel.Position = UDim2.new(1, -210, 1, -100) -- Bottom right inside window
-		CreatorPanel.BackgroundColor3 = Theme.Secondary
-		CreatorPanel.BackgroundTransparency = 0.1
-		CreatorPanel.BorderSizePixel = 0
-		CreatorPanel.Parent = Window
-
-		local PanelCorner = Instance.new("UICorner")
-		PanelCorner.CornerRadius = UDim.new(0, 6)
-		PanelCorner.Parent = CreatorPanel
-
-		-- Creator name
-		local CreatorLabel = Instance.new("TextLabel")
-		CreatorLabel.Name = "CreatorLabel"
-		CreatorLabel.Size = UDim2.new(1, -10, 0, 16)
-		CreatorLabel.Position = UDim2.new(0, 5, 0, 5)
-		CreatorLabel.BackgroundTransparency = 1
-		CreatorLabel.TextColor3 = Theme.Title
-		CreatorLabel.TextSize = 12
-		CreatorLabel.Font = Enum.Font.GothamBold
-		CreatorLabel.TextXAlignment = Enum.TextXAlignment.Left
-		CreatorLabel.Text = "Created by " .. ElytraUI.HubSettings.CreatorName
-		CreatorLabel.Parent = CreatorPanel
-
-		-- Repository link
-		local RepoButton = Instance.new("TextButton")
-		RepoButton.Name = "RepoButton"
-		RepoButton.Size = UDim2.new(1, -10, 0, 16)
-		RepoButton.Position = UDim2.new(0, 5, 0, 22)
-		RepoButton.BackgroundTransparency = 1
-		RepoButton.TextColor3 = Theme.Tab
-		RepoButton.TextSize = 11
-		RepoButton.Font = Enum.Font.Gotham
-		RepoButton.TextXAlignment = Enum.TextXAlignment.Left
-		RepoButton.Text = "GitHub: karatdushi-hub/elytra-ui"
-		RepoButton.Parent = CreatorPanel
-
-		-- Hub description
-		local HubDescLabel = Instance.new("TextLabel")
-		HubDescLabel.Name = "HubDescLabel"
-		HubDescLabel.Size = UDim2.new(1, -10, 0, 40)
-		HubDescLabel.Position = UDim2.new(0, 5, 0, 42)
-		HubDescLabel.BackgroundTransparency = 1
-		HubDescLabel.TextColor3 = Theme.Description
-		HubDescLabel.TextSize = 11
-		HubDescLabel.Font = Enum.Font.Gotham
-		HubDescLabel.TextXAlignment = Enum.TextXAlignment.Left
-		HubDescLabel.TextWrapped = true
-		HubDescLabel.Text = ElytraUI.HubSettings.HubDescription
-		HubDescLabel.Parent = CreatorPanel
-
-		return CreatorPanel
-	end
-
-	local CreatorPanel = CreateCreatorPanel()
-
-	--// Elytra-UI: Create Main Menu (first tab with customizable content)
-	local MainMenuCallbacks = {} -- Store main menu button callbacks
-
-	function Options:AddMainMenuButton(Settings: { Title: string, Icon: string?, Callback: any })
-		local ButtonFrame = Instance.new("TextButton")
-		ButtonFrame.Name = Settings.Title .. "_MainMenu"
-		ButtonFrame.Size = UDim2.new(1, -10, 0, 35)
-		ButtonFrame.Position = UDim2.new(0, 5, 0, #MainMenuCallbacks * 40)
-		ButtonFrame.BackgroundColor3 = Theme.Component
-		ButtonFrame.BackgroundTransparency = 0
-		ButtonFrame.BorderSizePixel = 0
-		ButtonFrame.Text = ""
-		ButtonFrame.Parent = CreatorPanel
-
-		local ButtonCorner = Instance.new("UICorner")
-		ButtonCorner.CornerRadius = UDim.new(0, 4)
-		ButtonCorner.Parent = ButtonFrame
-
-		-- Button icon
-		if Settings.Icon then
-			local ButtonIcon = Instance.new("ImageLabel")
-			ButtonIcon.Name = "ButtonIcon"
-			ButtonIcon.Size = UDim2.new(0, 24, 0, 24)
-			ButtonIcon.Position = UDim2.new(0, 8, 0.5, -12)
-			ButtonIcon.BackgroundTransparency = 1
-			ButtonIcon.Image = Settings.Icon
-			ButtonIcon.Parent = ButtonFrame
-
-			local IconCorner = Instance.new("UICorner")
-			IconCorner.CornerRadius = UDim.new(0, 4)
-			IconCorner.Parent = ButtonIcon
-		end
-
-		-- Button text
-		local ButtonText = Instance.new("TextLabel")
-		ButtonText.Name = "ButtonText"
-		ButtonText.Size = UDim2.new(1, -40, 1, 0)
-		ButtonText.Position = UDim2.new(0, 35, 0, 0)
-		ButtonText.BackgroundTransparency = 1
-		ButtonText.TextColor3 = Theme.Title
-		ButtonText.TextSize = 13
-		ButtonText.Font = Enum.Font.Gotham
-		ButtonText.TextXAlignment = Enum.TextXAlignment.Left
-		ButtonText.Text = Settings.Title
-		ButtonText.Parent = ButtonFrame
-
-		-- Hover animation
-		ElytraConnect(ButtonFrame.MouseEnter, function()
-			Tween(ButtonFrame, .15, { BackgroundColor3 = Color(Theme.Component, 10, Setup.ThemeMode) })
-		end)
-
-		ElytraConnect(ButtonFrame.MouseLeave, function()
-			Tween(ButtonFrame, .15, { BackgroundColor3 = Theme.Component })
-		end)
-
-		-- Click handler
-		ElytraConnect(ButtonFrame.MouseButton1Click, function()
-			if Settings.Callback then
-				Settings.Callback()
-			end
-		end)
-
-		table.insert(MainMenuCallbacks, ButtonFrame)
-	end
 
 	for Index, Button in next, Sidebar.Top.Buttons:GetChildren() do
 		if Button:IsA("TextButton") then
@@ -1075,18 +958,22 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Bind = Dropdown["Main"].Options;
 		local MainFrame = Dropdown["Main"];
 
+		-- Adjust Bind size to make room for UnbindButton
+		Bind.Size = UDim2.new(1, -75, 1, 0) -- Reduce width to accommodate UnbindButton
+
 		-- Create unbind button (separate from keybind display, clearly visible)
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
-		UnbindButton.Size = UDim2.new(0, 65, 0, 20)
-		UnbindButton.Position = UDim2.new(1, -70, 0.5, -10)
+		UnbindButton.Size = UDim2.new(0, 60, 0, 18)
+		UnbindButton.Position = UDim2.new(1, -65, 0.5, -9)
 		UnbindButton.BackgroundColor3 = Theme.Interactables
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
 		UnbindButton.Text = "Unbind"
 		UnbindButton.TextColor3 = Theme.Description
-		UnbindButton.TextSize = 11
+		UnbindButton.TextSize = 10
 		UnbindButton.Font = Enum.Font.Gotham
+		UnbindButton.ZIndex = 2 -- Ensure button is above other elements
 		UnbindButton.Parent = MainFrame
 
 		local UnbindCorner = Instance.new("UICorner")
@@ -1640,6 +1527,14 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	SetProperty(Window, { Size = Settings.Size, Visible = true, Parent = Screen });
 	Animations:Open(Window, Settings.Transparency or 0)
+
+	--// Elytra-UI: Ensure theme is always applied
+	if Settings.Theme then
+		Setup.ThemeMode = Settings.Theme
+	else
+		Setup.ThemeMode = "Dark"
+	end
+	Options:SetTheme(Theme)
 
 	--// Elytra-UI: Store reference to current window for auto unload
 	ElytraUI.CurrentWindow = Options
