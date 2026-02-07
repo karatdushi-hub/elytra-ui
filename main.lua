@@ -784,9 +784,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Title, Description = Options:GetLabels(Dropdown);
 		local Bind = Dropdown["Main"].Options;
 
-		local Mouse = { Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3 };
 		local Types = {
-			["Mouse"] = "Enum.UserInputType.MouseButton",
 			["Key"] = "Enum.KeyCode."
 		}
 
@@ -801,6 +799,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 				-- Double click detected - unbind keybind
 				CurrentKey = nil
 				SetProperty(Bind, { Text = "None" })
+				-- Update keybind panel to show None
+				Options:AddKeybindLabel(Settings.Title, nil)
 				--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 				task.delay(0.3, function()
 					Settings.Callback(nil)
@@ -820,16 +820,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 				if not Finished and not Focused then
 					Finished = (true)
 
-					if table.find(Mouse, InputType) then
-						CurrentKey = Key
-						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
-						task.delay(0.3, function()
-							Settings.Callback(Key);
-						end)
-						SetProperty(Bind, {
-							Text = tostring(InputType):gsub(Types.Mouse, "MB")
-						})
-					elseif InputType == Enum.UserInputType.Keyboard then
+					--// Elytra-UI: Prevent mouse button binding - only allow keyboard keys
+					if InputType == Enum.UserInputType.Keyboard then
 						CurrentKey = Key
 						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 						task.delay(0.3, function()
@@ -838,6 +830,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						SetProperty(Bind, {
 							Text = tostring(Key.KeyCode):gsub(Types.Key, "")
 						})
+						-- Update keybind panel to show selected key
+						Options:AddKeybindLabel(Settings.Title, Key.KeyCode)
+					else
+						-- Mouse button clicked - ignore and reset
+						SetProperty(Bind, { Text = "None" })
 					end
 				end
 			end)
