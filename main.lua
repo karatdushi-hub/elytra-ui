@@ -1,3 +1,4 @@
+--// Connections
 local GetService = game.GetService
 local Connect = game.Loaded.Connect
 local Wait = game.Loaded.Wait
@@ -22,7 +23,14 @@ local ElytraUI = {
 	WindowCreated = false,
 	ActiveFunctions = {},
 	MinimizeIconVisible = true,
-	MinimizeIcon = nil
+	MinimizeIcon = nil,
+	HubSettings = {
+		HubName = "Elytra Hub",
+		GameName = "Universal",
+		HubDescription = "A powerful UI library for Roblox",
+		CreatorName = "RAKET90 (romb_pa)",
+		RepositoryUrl = "https://github.com/karatdushi-hub/elytra-ui"
+	}
 }
 
 local Theme = { --// (Dark Theme)
@@ -292,7 +300,7 @@ end
 
 --// Library [Window]
 
-function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparency: number, MinimizeKeybind: Enum.KeyCode?, Blurring: boolean, Theme: string })
+function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparency: number, MinimizeKeybind: Enum.KeyCode?, Blurring: boolean, Theme: string, HubName: string?, GameName: string?, HubDescription: string? })
 	--// Elytra-UI Protection: Auto unload if window already exists
 	if ElytraUI.WindowCreated then
 		-- Call unload on existing window if available
@@ -303,6 +311,17 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		end
 	end
 	ElytraUI.WindowCreated = true
+
+	--// Apply custom hub settings
+	if Settings.HubName then
+		ElytraUI.HubSettings.HubName = Settings.HubName
+	end
+	if Settings.GameName then
+		ElytraUI.HubSettings.GameName = Settings.GameName
+	end
+	if Settings.HubDescription then
+		ElytraUI.HubSettings.HubDescription = Settings.HubDescription
+	end
 
 	local Window = Clone(Screen:WaitForChild("Main"));
 	local Sidebar = Window:FindFirstChild("Sidebar");
@@ -320,6 +339,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local DropdownOpen = false -- Prevent multiple dropdowns open
 	local KeybindLabels = {} -- Store keybind labels for display
 	local UnbindButtons = {} -- Store unbind buttons for theme updates
+	local MiniBar = nil -- Store mini bar reference
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -591,6 +611,215 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	ElytraUI.KeybindPanel = KeybindPanel
 	ElytraUI.KeybindPanelGui = KeybindPanelGui
 
+	--// Elytra-UI: Create Mini Bar (bottom left inside main panel)
+	local function CreateMiniBar()
+		-- Create mini bar frame inside the window
+		local MiniBarFrame = Instance.new("Frame")
+		MiniBarFrame.Name = "MiniBar"
+		MiniBarFrame.Size = UDim2.new(0, 180, 0, 80)
+		MiniBarFrame.Position = UDim2.new(0, 10, 1, -90) -- Bottom left inside window
+		MiniBarFrame.BackgroundColor3 = Theme.Secondary
+		MiniBarFrame.BackgroundTransparency = 0.1
+		MiniBarFrame.BorderSizePixel = 0
+		MiniBarFrame.Parent = Window
+
+		local MiniBarCorner = Instance.new("UICorner")
+		MiniBarCorner.CornerRadius = UDim.new(0, 6)
+		MiniBarCorner.Parent = MiniBarFrame
+
+		-- Player icon (left side)
+		local PlayerIcon = Instance.new("ImageLabel")
+		PlayerIcon.Name = "PlayerIcon"
+		PlayerIcon.Size = UDim2.new(0, 50, 0, 50)
+		PlayerIcon.Position = UDim2.new(0, 8, 0, 15)
+		PlayerIcon.BackgroundColor3 = Theme.Primary
+		PlayerIcon.BackgroundTransparency = 0
+		PlayerIcon.BorderSizePixel = 0
+		PlayerIcon.Image = "rbxassetid://6626517375" -- Default player icon
+		PlayerIcon.Parent = MiniBarFrame
+
+		local IconCorner = Instance.new("UICorner")
+		IconCorner.CornerRadius = UDim.new(0, 8)
+		IconCorner.Parent = PlayerIcon
+
+		-- Info container (right side)
+		local InfoContainer = Instance.new("Frame")
+		InfoContainer.Name = "InfoContainer"
+		InfoContainer.Size = UDim2.new(1, -65, 1, -10)
+		InfoContainer.Position = UDim2.new(0, 60, 0, 5)
+		InfoContainer.BackgroundTransparency = 1
+		InfoContainer.BorderSizePixel = 0
+		InfoContainer.Parent = MiniBarFrame
+
+		-- Hub name (top right)
+		local HubNameLabel = Instance.new("TextLabel")
+		HubNameLabel.Name = "HubName"
+		HubNameLabel.Size = UDim2.new(1, 0, 0, 16)
+		HubNameLabel.Position = UDim2.new(0, 0, 0, 0)
+		HubNameLabel.BackgroundTransparency = 1
+		HubNameLabel.TextColor3 = Theme.Title
+		HubNameLabel.TextSize = 14
+		HubNameLabel.Font = Enum.Font.GothamBold
+		HubNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+		HubNameLabel.Text = ElytraUI.HubSettings.HubName
+		HubNameLabel.Parent = InfoContainer
+
+		-- Game name (middle)
+		local GameNameLabel = Instance.new("TextLabel")
+		GameNameLabel.Name = "GameName"
+		GameNameLabel.Size = UDim2.new(1, 0, 0, 14)
+		GameNameLabel.Position = UDim2.new(0, 0, 0, 18)
+		GameNameLabel.BackgroundTransparency = 1
+		GameNameLabel.TextColor3 = Theme.Tab
+		GameNameLabel.TextSize = 12
+		GameNameLabel.Font = Enum.Font.Gotham
+		GameNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+		GameNameLabel.Text = ElytraUI.HubSettings.GameName
+		GameNameLabel.Parent = InfoContainer
+
+		-- Player name (bottom)
+		local PlayerNameLabel = Instance.new("TextLabel")
+		PlayerNameLabel.Name = "PlayerName"
+		PlayerNameLabel.Size = UDim2.new(1, 0, 0, 14)
+		PlayerNameLabel.Position = UDim2.new(0, 0, 0, 34)
+		PlayerNameLabel.BackgroundTransparency = 1
+		PlayerNameLabel.TextColor3 = Theme.Description
+		PlayerNameLabel.TextSize = 12
+		PlayerNameLabel.Font = Enum.Font.Gotham
+		PlayerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+		PlayerNameLabel.Text = LocalPlayer.Name
+		PlayerNameLabel.Parent = InfoContainer
+
+		return MiniBarFrame
+	end
+
+	MiniBar = CreateMiniBar()
+
+	--// Elytra-UI: Create Creator Info Panel (bottom right inside main panel)
+	local function CreateCreatorPanel()
+		local CreatorPanel = Instance.new("Frame")
+		CreatorPanel.Name = "CreatorPanel"
+		CreatorPanel.Size = UDim2.new(0, 200, 0, 90)
+		CreatorPanel.Position = UDim2.new(1, -210, 1, -100) -- Bottom right inside window
+		CreatorPanel.BackgroundColor3 = Theme.Secondary
+		CreatorPanel.BackgroundTransparency = 0.1
+		CreatorPanel.BorderSizePixel = 0
+		CreatorPanel.Parent = Window
+
+		local PanelCorner = Instance.new("UICorner")
+		PanelCorner.CornerRadius = UDim.new(0, 6)
+		PanelCorner.Parent = CreatorPanel
+
+		-- Creator name
+		local CreatorLabel = Instance.new("TextLabel")
+		CreatorLabel.Name = "CreatorLabel"
+		CreatorLabel.Size = UDim2.new(1, -10, 0, 16)
+		CreatorLabel.Position = UDim2.new(0, 5, 0, 5)
+		CreatorLabel.BackgroundTransparency = 1
+		CreatorLabel.TextColor3 = Theme.Title
+		CreatorLabel.TextSize = 12
+		CreatorLabel.Font = Enum.Font.GothamBold
+		CreatorLabel.TextXAlignment = Enum.TextXAlignment.Left
+		CreatorLabel.Text = "Created by " .. ElytraUI.HubSettings.CreatorName
+		CreatorLabel.Parent = CreatorPanel
+
+		-- Repository link
+		local RepoButton = Instance.new("TextButton")
+		RepoButton.Name = "RepoButton"
+		RepoButton.Size = UDim2.new(1, -10, 0, 16)
+		RepoButton.Position = UDim2.new(0, 5, 0, 22)
+		RepoButton.BackgroundTransparency = 1
+		RepoButton.TextColor3 = Theme.Tab
+		RepoButton.TextSize = 11
+		RepoButton.Font = Enum.Font.Gotham
+		RepoButton.TextXAlignment = Enum.TextXAlignment.Left
+		RepoButton.Text = "GitHub: karatdushi-hub/elytra-ui"
+		RepoButton.Parent = CreatorPanel
+
+		-- Hub description
+		local HubDescLabel = Instance.new("TextLabel")
+		HubDescLabel.Name = "HubDescLabel"
+		HubDescLabel.Size = UDim2.new(1, -10, 0, 40)
+		HubDescLabel.Position = UDim2.new(0, 5, 0, 42)
+		HubDescLabel.BackgroundTransparency = 1
+		HubDescLabel.TextColor3 = Theme.Description
+		HubDescLabel.TextSize = 11
+		HubDescLabel.Font = Enum.Font.Gotham
+		HubDescLabel.TextXAlignment = Enum.TextXAlignment.Left
+		HubDescLabel.TextWrapped = true
+		HubDescLabel.Text = ElytraUI.HubSettings.HubDescription
+		HubDescLabel.Parent = CreatorPanel
+
+		return CreatorPanel
+	end
+
+	local CreatorPanel = CreateCreatorPanel()
+
+	--// Elytra-UI: Create Main Menu (first tab with customizable content)
+	local MainMenuCallbacks = {} -- Store main menu button callbacks
+
+	function Options:AddMainMenuButton(Settings: { Title: string, Icon: string?, Callback: any })
+		local ButtonFrame = Instance.new("TextButton")
+		ButtonFrame.Name = Settings.Title .. "_MainMenu"
+		ButtonFrame.Size = UDim2.new(1, -10, 0, 35)
+		ButtonFrame.Position = UDim2.new(0, 5, 0, #MainMenuCallbacks * 40)
+		ButtonFrame.BackgroundColor3 = Theme.Component
+		ButtonFrame.BackgroundTransparency = 0
+		ButtonFrame.BorderSizePixel = 0
+		ButtonFrame.Text = ""
+		ButtonFrame.Parent = CreatorPanel
+
+		local ButtonCorner = Instance.new("UICorner")
+		ButtonCorner.CornerRadius = UDim.new(0, 4)
+		ButtonCorner.Parent = ButtonFrame
+
+		-- Button icon
+		if Settings.Icon then
+			local ButtonIcon = Instance.new("ImageLabel")
+			ButtonIcon.Name = "ButtonIcon"
+			ButtonIcon.Size = UDim2.new(0, 24, 0, 24)
+			ButtonIcon.Position = UDim2.new(0, 8, 0.5, -12)
+			ButtonIcon.BackgroundTransparency = 1
+			ButtonIcon.Image = Settings.Icon
+			ButtonIcon.Parent = ButtonFrame
+
+			local IconCorner = Instance.new("UICorner")
+			IconCorner.CornerRadius = UDim.new(0, 4)
+			IconCorner.Parent = ButtonIcon
+		end
+
+		-- Button text
+		local ButtonText = Instance.new("TextLabel")
+		ButtonText.Name = "ButtonText"
+		ButtonText.Size = UDim2.new(1, -40, 1, 0)
+		ButtonText.Position = UDim2.new(0, 35, 0, 0)
+		ButtonText.BackgroundTransparency = 1
+		ButtonText.TextColor3 = Theme.Title
+		ButtonText.TextSize = 13
+		ButtonText.Font = Enum.Font.Gotham
+		ButtonText.TextXAlignment = Enum.TextXAlignment.Left
+		ButtonText.Text = Settings.Title
+		ButtonText.Parent = ButtonFrame
+
+		-- Hover animation
+		ElytraConnect(ButtonFrame.MouseEnter, function()
+			Tween(ButtonFrame, .15, { BackgroundColor3 = Color(Theme.Component, 10, Setup.ThemeMode) })
+		end)
+
+		ElytraConnect(ButtonFrame.MouseLeave, function()
+			Tween(ButtonFrame, .15, { BackgroundColor3 = Theme.Component })
+		end)
+
+		-- Click handler
+		ElytraConnect(ButtonFrame.MouseButton1Click, function()
+			if Settings.Callback then
+				Settings.Callback()
+			end
+		end)
+
+		table.insert(MainMenuCallbacks, ButtonFrame)
+	end
+
 	for Index, Button in next, Sidebar.Top.Buttons:GetChildren() do
 		if Button:IsA("TextButton") then
 			local Name = Button.Name
@@ -844,39 +1073,28 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Dropdown = Clone(Components["Keybind"]);
 		local Title, Description = Options:GetLabels(Dropdown);
 		local Bind = Dropdown["Main"].Options;
+		local MainFrame = Dropdown["Main"];
 
-		-- Create unbind button (smaller, smoother, theme-aware)
+		-- Create unbind button (separate from keybind display, clearly visible)
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
-		UnbindButton.Size = UDim2.new(0, 16, 0, 16)
-		UnbindButton.Position = UDim2.new(1, -20, 0.5, -8)
+		UnbindButton.Size = UDim2.new(0, 65, 0, 20)
+		UnbindButton.Position = UDim2.new(1, -70, 0.5, -10)
 		UnbindButton.BackgroundColor3 = Theme.Interactables
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
-		UnbindButton.Text = ""
-		UnbindButton.Parent = Dropdown["Main"]
+		UnbindButton.Text = "Unbind"
+		UnbindButton.TextColor3 = Theme.Description
+		UnbindButton.TextSize = 11
+		UnbindButton.Font = Enum.Font.Gotham
+		UnbindButton.Parent = MainFrame
 
 		local UnbindCorner = Instance.new("UICorner")
-		UnbindCorner.CornerRadius = UDim.new(0, 3)
+		UnbindCorner.CornerRadius = UDim.new(0, 4)
 		UnbindCorner.Parent = UnbindButton
 
-		-- Create inner square (shows when keybind is set)
-		local InnerSquare = Instance.new("Frame")
-		InnerSquare.Name = "InnerSquare"
-		InnerSquare.Size = UDim2.new(0, 8, 0, 8)
-		InnerSquare.Position = UDim2.new(0.5, -4, 0.5, -4)
-		InnerSquare.BackgroundColor3 = Theme.Primary
-		InnerSquare.BackgroundTransparency = 1
-		InnerSquare.BorderSizePixel = 0
-		InnerSquare.Visible = false
-		InnerSquare.Parent = UnbindButton
-
-		local InnerCorner = Instance.new("UICorner")
-		InnerCorner.CornerRadius = UDim.new(0, 2)
-		InnerCorner.Parent = InnerSquare
-
 		-- Store unbind button for theme updates
-		table.insert(UnbindButtons, { Button = UnbindButton, InnerSquare = InnerSquare })
+		table.insert(UnbindButtons, { Button = UnbindButton })
 
 		-- Hover animation for unbind button
 		ElytraConnect(UnbindButton.MouseEnter, function()
@@ -891,17 +1109,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local DetectConnection = nil
 		local IsBinding = false
 
-		-- Function to update unbind button visibility and colors
-		local UpdateUnbindButton = function()
-			if CurrentKey then
-				InnerSquare.Visible = true
-				InnerSquare.BackgroundTransparency = 0
-				InnerSquare.BackgroundColor3 = Theme.Primary
-			else
-				InnerSquare.Visible = false
-			end
-		end
-
 		-- Unbind button click handler
 		ElytraConnect(UnbindButton.MouseButton1Click, function()
 			if not CurrentKey then return end -- Only unbind if key is set
@@ -915,7 +1122,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			-- Unbind keybind
 			CurrentKey = nil
 			SetProperty(Bind, { Text = "None" })
-			UpdateUnbindButton()
+			UnbindButton.Text = "Unbind"
+			UnbindButton.TextColor3 = Theme.Description
 
 			-- Call callback with nil after delay
 			task.delay(0.3, function()
@@ -930,6 +1138,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 			IsBinding = true
 			SetProperty(Bind, { Text = "..." });
+			UnbindButton.Text = "..."
 
 			-- Disconnect previous detection connection if exists
 			if DetectConnection then
@@ -952,7 +1161,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						CurrentKey = Key.KeyCode
 						local KeyName = tostring(Key.KeyCode):gsub("Enum%..*%.", "")
 						SetProperty(Bind, { Text = KeyName })
-						UpdateUnbindButton()
+						UnbindButton.Text = "Unbind"
+						UnbindButton.TextColor3 = Theme.Title
 						-- Call callback after delay to prevent immediate activation
 						task.delay(0.3, function()
 							Settings.Callback(Key.KeyCode)
@@ -966,6 +1176,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						else
 							SetProperty(Bind, { Text = "None" })
 						end
+						UnbindButton.Text = "Unbind"
+						UnbindButton.TextColor3 = Theme.Description
 						IsBinding = false
 					end
 				end
@@ -1311,9 +1523,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			if UnbindData.Button and UnbindData.Button.Parent then
 				UnbindData.Button.BackgroundColor3 = Theme.Interactables
 			end
-			if UnbindData.InnerSquare and UnbindData.InnerSquare.Parent then
-				UnbindData.InnerSquare.BackgroundColor3 = Theme.Primary
-			end
 		end
 
 		-- Update keybind panel label colors
@@ -1332,7 +1541,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	--// Changing Settings
 
-	function Options:SetSetting(Setting, Value) --// Available settings - Size, Transparency, Blur, Theme
+	function Options:SetSetting(Setting, Value) --// Available settings - Size, Transparency, Blur, Theme, Keybind, MinimizeIconVisible
 		if Setting == "Size" then
 
 			Window.Size = Value
@@ -1387,9 +1596,46 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			end
 			ElytraUI.MinimizeIconVisible = Value
 
+		elseif Setting == "HubName" then
+
+			ElytraUI.HubSettings.HubName = Value
+			-- Update mini bar hub name if exists
+			if MiniBar and MiniBar:FindFirstChild("InfoContainer") then
+				local HubName = MiniBar.InfoContainer:FindFirstChild("HubName")
+				if HubName then
+					HubName.Text = Value
+				end
+			end
+
+		elseif Setting == "GameName" then
+
+			ElytraUI.HubSettings.GameName = Value
+			-- Update mini bar game name if exists
+			if MiniBar and MiniBar:FindFirstChild("InfoContainer") then
+				local GameName = MiniBar.InfoContainer:FindFirstChild("GameName")
+				if GameName then
+					GameName.Text = Value
+				end
+			end
+
+		elseif Setting == "HubDescription" then
+
+			ElytraUI.HubSettings.HubDescription = Value
+
 		else
 			warn("Tried to change a setting that doesn't exist or isn't available to change.")
 		end
+	end
+
+	--// Get hub settings function
+	function Options:GetHubSettings()
+		return {
+			HubName = ElytraUI.HubSettings.HubName,
+			GameName = ElytraUI.HubSettings.GameName,
+			HubDescription = ElytraUI.HubSettings.HubDescription,
+			CreatorName = ElytraUI.HubSettings.CreatorName,
+			RepositoryUrl = ElytraUI.HubSettings.RepositoryUrl
+		}
 	end
 
 	SetProperty(Window, { Size = Settings.Size, Visible = true, Parent = Screen });
