@@ -784,12 +784,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Title, Description = Options:GetLabels(Dropdown);
 		local Bind = Dropdown["Main"].Options;
 
-		local Types = {
-			["Key"] = "Enum.KeyCode."
-		}
-
 		local LastClickTime = 0
 		local CurrentKey = nil
+		local DetectConnection = nil
 
 		ElytraConnect(Dropdown.MouseButton1Click, function()
 			local CurrentTime = tick()
@@ -810,30 +807,37 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			end
 
 			LastClickTime = CurrentTime
-			local Time = tick();
-			local Detect, Finished
-
 			SetProperty(Bind, { Text = "..." });
-			Detect = ElytraConnect(game.UserInputService.InputBegan, function(Key, Focused)
-				local InputType = (Key.UserInputType);
 
-				if not Finished and not Focused then
-					Finished = (true)
+			-- Disconnect previous detection connection if exists
+			if DetectConnection then
+				DetectConnection:Disconnect()
+				DetectConnection = nil
+			end
+
+			-- Start listening for key input
+			DetectConnection = ElytraConnect(game.UserInputService.InputBegan, function(Key, Focused)
+				if not Focused then
+					-- Disconnect detection connection
+					if DetectConnection then
+						DetectConnection:Disconnect()
+						DetectConnection = nil
+					end
 
 					--// Elytra-UI: Prevent mouse button binding - only allow keyboard keys
-					if InputType == Enum.UserInputType.Keyboard then
-						CurrentKey = Key
+					if Key.KeyCode and Key.KeyCode ~= Enum.KeyCode.Unknown then
+						-- Keyboard key pressed
+						CurrentKey = Key.KeyCode
+						local KeyName = tostring(Key.KeyCode):gsub("Enum.KeyCode.", "")
+						SetProperty(Bind, { Text = KeyName })
 						--// Elytra-UI: Wait 0.3s before calling callback to prevent immediate activation
 						task.delay(0.3, function()
-							Settings.Callback(Key);
+							Settings.Callback(Key.KeyCode)
 						end)
-						SetProperty(Bind, {
-							Text = tostring(Key.KeyCode):gsub(Types.Key, "")
-						})
 						-- Update keybind panel to show selected key
-						Options:AddKeybindLabel(Settings.Title, Key.KeyCode)
+						Options:AddKeybindLabel(Settings.Title, KeyName)
 					else
-						-- Mouse button clicked - ignore and reset
+						-- Mouse button or unknown input - ignore and reset
 						SetProperty(Bind, { Text = "None" })
 					end
 				end
