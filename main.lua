@@ -1,3 +1,4 @@
+--// Connections
 local GetService = game.GetService
 local Connect = game.Loaded.Connect
 local Wait = game.Loaded.Wait
@@ -20,8 +21,7 @@ local Setup = {
 --// Elytra-UI Protection
 local ElytraUI = {
 	WindowCreated = false,
-	ActiveFunctions = {},
-	KeybindLabels = {}
+	ActiveFunctions = {}
 }
 
 local Theme = { --// (Dark Theme)
@@ -376,89 +376,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Clear active functions
 		ElytraUI.ActiveFunctions = {}
-
-		-- Clear keybind labels
-		for _, Label in pairs(ElytraUI.KeybindLabels) do
-			if Label then
-				Label:Destroy()
-			end
-		end
-		ElytraUI.KeybindLabels = {}
 	end
 
-	--// Elytra-UI: Create Keybind Panel (top right)
-	local KeybindPanel = Instance.new("ScreenGui")
-	KeybindPanel.Name = "ElytraKeybindPanel"
-	KeybindPanel.ResetOnSpawn = false
-	KeybindPanel.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-	local KeybindHolder = Instance.new("Frame")
-	KeybindHolder.Name = "KeybindHolder"
-	KeybindHolder.Size = UDim2.new(0, 200, 0, 30)
-	KeybindHolder.Position = UDim2.new(1, -210, 0, 10)
-	KeybindHolder.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	KeybindHolder.BackgroundTransparency = 0.2
-	KeybindHolder.BorderSizePixel = 0
-	KeybindHolder.Parent = KeybindPanel
-
-	local KeybindStroke = Instance.new("UIStroke")
-	KeybindStroke.Color = Color3.fromRGB(40, 40, 40)
-	KeybindStroke.Thickness = 1
-	KeybindStroke.Parent = KeybindHolder
-
-	local KeybindCorner = Instance.new("UICorner")
-	KeybindCorner.CornerRadius = UDim.new(0, 6)
-	KeybindCorner.Parent = KeybindHolder
-
-	local KeybindPadding = Instance.new("UIPadding")
-	KeybindPadding.PaddingLeft = UDim.new(0, 10)
-	KeybindPadding.PaddingRight = UDim.new(0, 10)
-	KeybindPadding.PaddingTop = UDim.new(0, 5)
-	KeybindPadding.PaddingBottom = UDim.new(0, 5)
-	KeybindPadding.Parent = KeybindHolder
-
-	local KeybindList = Instance.new("UIListLayout")
-	KeybindList.SortOrder = Enum.SortOrder.LayoutOrder
-	KeybindList.Padding = UDim.new(0, 5)
-	KeybindList.Parent = KeybindHolder
-
-	xpcall(function()
-		KeybindPanel.Parent = game.CoreGui
-	end, function()
-		KeybindPanel.Parent = Player.GUI
-	end)
-
-	--// Elytra-UI: AddKeybindLabel function
+	--// Elytra-UI: AddKeybindLabel function (placeholder for compatibility)
 	function Options:AddKeybindLabel(Name, Key)
-		local KeybindLabel = Instance.new("TextLabel")
-		KeybindLabel.Name = Name .. "Label"
-		KeybindLabel.Size = UDim2.new(1, 0, 0, 20)
-		KeybindLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-		KeybindLabel.BackgroundTransparency = 0.5
-		KeybindLabel.BorderSizePixel = 0
-		KeybindLabel.Text = Name .. ": " .. tostring(Key)
-		KeybindLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
-		KeybindLabel.TextSize = 12
-		KeybindLabel.Font = Enum.Font.GothamBold
-		KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
-		KeybindLabel.Parent = KeybindHolder
-
-		local LabelCorner = Instance.new("UICorner")
-		LabelCorner.CornerRadius = UDim.new(0, 4)
-		LabelCorner.Parent = KeybindLabel
-
-		local LabelPadding = Instance.new("UIPadding")
-		LabelPadding.PaddingLeft = UDim.new(0, 8)
-		LabelPadding.PaddingRight = UDim.new(0, 8)
-		LabelPadding.Parent = KeybindLabel
-
-		ElytraUI.KeybindLabels[Name] = KeybindLabel
-
-		-- Update holder size
-		local childCount = #KeybindHolder:GetChildren()
-		KeybindHolder.Size = UDim2.new(0, 200, 0, 10 + (childCount * 25))
-
-		return KeybindLabel
+		-- Keybind panel removed as requested
+		-- This function is kept for compatibility but does nothing
 	end
 
 	--// Elytra-UI: Custom Connect function to store connections
@@ -928,8 +851,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["Title"] = function(Label)
 				if Label:IsA("TextLabel") then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for titles
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
@@ -942,16 +863,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["Section"] = function(Label)
 				if Label:IsA("TextLabel") then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for sections
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
 			["Options"] = function(Label)
 				if Label:IsA("TextLabel") and Label.Parent.Name == "Main" then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for options
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
@@ -965,8 +882,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["TextLabel"] = function(Label)
 				if Label:IsA("TextLabel") and Label.Parent:FindFirstChild("List") then
 					Label.TextColor3 = Theme.Tab
-					--// Elytra-UI: Bold font for tab labels
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
@@ -988,8 +903,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 					end
 				elseif Label:FindFirstChild("Padding") then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for padded labels
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
@@ -1008,8 +921,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["Input"] = function(Label)
 				if Label:IsA("TextLabel") then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for input labels
-					Label.Font = Enum.Font.GothamBold
 				elseif Label:FindFirstChild("Labels") then
 					Label.BackgroundColor3 = Theme.Component
 				elseif Label:IsA("TextBox") and Label.Parent.Name == "Main" then
@@ -1044,8 +955,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			["TextLabel"] = function(Label)
 				if Label:FindFirstChild("Padding") then
 					Label.TextColor3 = Theme.Title
-					--// Elytra-UI: Bold font for padded text labels
-					Label.Font = Enum.Font.GothamBold
 				end
 			end,
 
