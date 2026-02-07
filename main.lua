@@ -1,26 +1,20 @@
-local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Utility
-local function create(instanceType, props)
-	local inst = Instance.new(instanceType)
-	if props then
-		for k, v in pairs(props) do
-			inst[k] = v
-		end
-	end
+local function create(t, props)
+	local inst = Instance.new(t)
+	if props then for k,v in pairs(props) do inst[k] = v end end
 	return inst
 end
 
-local function clamp(v, min, max) return math.min(math.max(v, min), max) end
-local function lerp(a, b, t) return a + (b - a) * t end
+local clamp = math.clamp
+local lerp = function(a,b,t) return a + (b-a)*t end
 
--- Main Library
 local NeonUI = {}
 NeonUI.__index = NeonUI
 
@@ -29,84 +23,76 @@ function NeonUI.new()
 		windows = {},
 		themes = {
 			Dark = {
-				Primary = Color3.fromRGB(30, 30, 30),
-				Secondary = Color3.fromRGB(35, 35, 35),
-				Component = Color3.fromRGB(40, 40, 40),
-				Interactables = Color3.fromRGB(45, 45, 45),
-				Tab = Color3.fromRGB(200, 200, 200),
-				Title = Color3.fromRGB(240, 240, 240),
-				Description = Color3.fromRGB(200, 200, 200),
-				Outline = Color3.fromRGB(40, 40, 40),
-				Icon = Color3.fromRGB(220, 220, 220),
+				Primary = Color3.fromRGB(30,30,30),
+				Secondary = Color3.fromRGB(35,35,35),
+				Component = Color3.fromRGB(40,40,40),
+				Interactables = Color3.fromRGB(45,45,45),
+				Tab = Color3.fromRGB(200,200,200),
+				Title = Color3.fromRGB(240,240,240),
+				Description = Color3.fromRGB(200,200,200),
+				Outline = Color3.fromRGB(40,40,40),
+				Icon = Color3.fromRGB(220,220,220)
 			},
 			Light = {
-				Primary = Color3.fromRGB(232, 232, 232),
-				Secondary = Color3.fromRGB(255, 255, 255),
-				Component = Color3.fromRGB(245, 245, 245),
-				Interactables = Color3.fromRGB(235, 235, 235),
-				Tab = Color3.fromRGB(50, 50, 50),
-				Title = Color3.fromRGB(0, 0, 0),
-				Description = Color3.fromRGB(100, 100, 100),
-				Outline = Color3.fromRGB(210, 210, 210),
-				Icon = Color3.fromRGB(100, 100, 100),
+				Primary = Color3.fromRGB(232,232,232),
+				Secondary = Color3.fromRGB(255,255,255),
+				Component = Color3.fromRGB(245,245,245),
+				Interactables = Color3.fromRGB(235,235,235),
+				Tab = Color3.fromRGB(50,50,50),
+				Title = Color3.fromRGB(0,0,0),
+				Description = Color3.fromRGB(100,100,100),
+				Outline = Color3.fromRGB(210,210,210),
+				Icon = Color3.fromRGB(100,100,100)
 			},
 			Void = {
-				Primary = Color3.fromRGB(15, 15, 15),
-				Secondary = Color3.fromRGB(20, 20, 20),
-				Component = Color3.fromRGB(25, 25, 25),
-				Interactables = Color3.fromRGB(30, 30, 30),
-				Tab = Color3.fromRGB(200, 200, 200),
-				Title = Color3.fromRGB(240, 240, 240),
-				Description = Color3.fromRGB(200, 200, 200),
-				Outline = Color3.fromRGB(40, 40, 40),
-				Icon = Color3.fromRGB(220, 220, 220),
+				Primary = Color3.fromRGB(15,15,15),
+				Secondary = Color3.fromRGB(20,20,20),
+				Component = Color3.fromRGB(25,25,25),
+				Interactables = Color3.fromRGB(30,30,30),
+				Tab = Color3.fromRGB(200,200,200),
+				Title = Color3.fromRGB(240,240,240),
+				Description = Color3.fromRGB(200,200,200),
+				Outline = Color3.fromRGB(40,40,40),
+				Icon = Color3.fromRGB(220,220,220)
 			}
 		}
 	}, NeonUI)
 end
 
-function NeonUI:CreateWindow(config)
-	assert(typeof(config) == "table", "Config must be a table")
-	config.Size = config.Size or UDim2.fromOffset(570, 370)
-	config.Transparency = clamp(config.Transparency or 0, 0, 1)
-	config.Theme = config.Theme or "Dark"
-	config.Blurring = config.Blurring ~= false
-	config.MinimizeKeybind = config.MinimizeKeybind or Enum.KeyCode.LeftControl
+function NeonUI:CreateWindow(cfg)
+	assert(typeof(cfg) == "table", "CreateWindow expects table config")
+	cfg.Size = cfg.Size or UDim2.fromOffset(570, 370)
+	cfg.Transparency = clamp(cfg.Transparency or 0, 0, 1)
+	cfg.Theme = cfg.Theme or "Dark"
+	cfg.Blurring = cfg.Blurring ~= false
+	cfg.MinimizeKeybind = cfg.MinimizeKeybind or Enum.KeyCode.LeftControl
 
-	local window = create("ScreenGui", {
-		Name = "NeonUI_Window",
+	local win = create("ScreenGui", {
+		Name = "NeonUI_Window_" .. tick(),
 		ResetOnSpawn = false,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Parent = PlayerGui
 	})
 
-	-- Core structure
 	local bg = create("Frame", {
 		Name = "Background",
-		Size = config.Size,
-		BackgroundColor3 = self.themes[config.Theme].Primary,
+		Size = cfg.Size,
+		BackgroundColor3 = self.themes[cfg.Theme].Primary,
 		BorderSizePixel = 0,
-		Parent = window
+		Parent = win
 	})
 
-	create("UIStroke", {
-		Color = self.themes[config.Theme].Outline,
-		Thickness = 1,
-		Parent = bg
-	})
+	create("UIStroke", { Color = self.themes[cfg.Theme].Outline, Thickness = 1, Parent = bg })
 
-	local blurEffect = nil
-	if config.Blurring then
-		blurEffect = create("UIBlurEffect", {
-			Intensity = 5,
-			Size = 256,
-			Parent = bg
-		})
+	local blur = nil
+	if cfg.Blurring then
+		blur = create("UIBlurEffect", { Intensity = 5, Parent = bg })
 	end
 
 	-- Title bar
 	local titleBar = create("Frame", {
 		Size = UDim2.new(1, 0, 0, 30),
-		BackgroundColor3 = self.themes[config.Theme].Secondary,
+		BackgroundColor3 = self.themes[cfg.Theme].Secondary,
 		BorderSizePixel = 0,
 		Parent = bg
 	})
@@ -114,73 +100,70 @@ function NeonUI:CreateWindow(config)
 	create("TextLabel", {
 		Size = UDim2.new(1, -90, 1, 0),
 		Position = UDim2.new(0, 10, 0, 0),
-		Text = config.Title or "NeonUI",
+		Text = cfg.Title or "NeonUI",
 		Font = Enum.Font.GothamBold,
 		TextSize = 14,
-		TextColor3 = self.themes[config.Theme].Title,
+		TextColor3 = self.themes[cfg.Theme].Title,
 		BackgroundTransparency = 1,
 		Parent = titleBar
 	})
 
-	-- Buttons
 	local closeBtn = create("TextButton", {
 		Size = UDim2.new(0, 30, 1, 0),
 		Position = UDim2.new(1, -30, 0, 0),
 		Text = "✕",
 		Font = Enum.Font.GothamBold,
 		TextSize = 16,
-		TextColor3 = self.themes[config.Theme].Description,
-		BackgroundColor3 = self.themes[config.Theme].Interactables,
+		TextColor3 = self.themes[cfg.Theme].Description,
+		BackgroundColor3 = self.themes[cfg.Theme].Interactables,
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 		Parent = titleBar
 	})
 
-	-- Content area
-	local content = create("Frame", {
-		Size = UDim2.new(1, 0, 1, -30),
-		Position = UDim2.new(0, 0, 0, 30),
-		BackgroundColor3 = self.themes[config.Theme].Secondary,
-		BorderSizePixel = 0,
-		Parent = bg
-	})
-
 	-- Keybind panel (top-right)
-	local keybindPanel = create("Frame", {
+	local keyPanel = create("Frame", {
 		Size = UDim2.new(0, 180, 0, 20),
 		Position = UDim2.new(1, -190, 0, 5),
-		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		BackgroundColor3 = Color3.fromRGB(0,0,0),
 		BackgroundTransparency = 0.7,
 		BorderSizePixel = 0,
 		Visible = false,
 		Parent = bg
 	})
-
 	create("UIListLayout", {
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
 		Padding = UDim.new(0, 5),
-		Parent = keybindPanel
+		Parent = keyPanel
+	})
+
+	-- Content
+	local content = create("Frame", {
+		Size = UDim2.new(1, 0, 1, -30),
+		Position = UDim2.new(0, 0, 0, 30),
+		BackgroundColor3 = self.themes[cfg.Theme].Secondary,
+		BorderSizePixel = 0,
+		Parent = bg
 	})
 
 	-- State
 	local visible = true
-	local connections = {}
+	local conns = {}
 
 	-- Drag
 	do
-		local dragging, dragStart, startPos
-		connections[#connections+1] = titleBar.InputBegan:Connect(function(input)
+		local dragStart, startPos
+		conns[#conns+1] = titleBar.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = true
 				dragStart = input.Position
 				startPos = bg.Position
 			end
 		end)
-		connections[#connections+1] = UserInputService.InputChanged:Connect(function(input)
-			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		conns[#conns+1] = UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and dragStart then
 				local delta = input.Position - dragStart
 				bg.Position = UDim2.new(
 					startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -188,141 +171,125 @@ function NeonUI:CreateWindow(config)
 				)
 			end
 		end)
-		connections[#connections+1] = UserInputService.InputEnded:Connect(function(input)
+		conns[#conns+1] = UserInputService.InputEnded:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = false
+				dragStart = nil
 			end
 		end)
 	end
 
-	-- Minimize toggle
-	local function toggleVisibility()
+	-- Toggle visibility
+	local function toggle()
 		visible = not visible
 		bg.Visible = visible
-		if keybindPanel.Visible then
-			keybindPanel.Visible = visible
-		end
+		keyPanel.Visible = visible
 	end
 
-	connections[#connections+1] = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if not gameProcessed and input.KeyCode == config.MinimizeKeybind then
-			toggleVisibility()
-		end
+	conns[#conns+1] = UserInputService.InputBegan:Connect(function(input, gp)
+		if not gp and input.KeyCode == cfg.MinimizeKeybind then toggle() end
 	end)
 
 	closeBtn.MouseButton1Click:Connect(function()
-		window:Destroy()
-		for _, conn in ipairs(connections) do
-			conn:Disconnect()
-		end
+		win:Destroy()
+		for _,c in ipairs(conns) do c:Disconnect() end
 	end)
 
-	-- Public API
+	-- API
 	local api = {
-		_window = window,
+		_win = win,
 		_bg = bg,
 		_content = content,
-		_theme = config.Theme,
-		_blur = blurEffect,
-		_keybindPanel = keybindPanel,
-		_connections = connections,
+		_theme = cfg.Theme,
+		_blur = blur,
+		_keyPanel = keyPanel,
+		_conns = conns,
 		_visible = visible,
-		_config = config
+		_cfg = cfg
 	}
 
-	function api:SetTheme(themeName)
-		local theme = self.themes[themeName]
-		if not theme then return end
-		self._theme = themeName
-		self._bg.BackgroundColor3 = theme.Primary
-		titleBar.BackgroundColor3 = theme.Secondary
-		closeBtn.BackgroundColor3 = theme.Interactables
-		closeBtn.TextColor3 = theme.Description
-		self._content.BackgroundColor3 = theme.Secondary
+	function api:SetTheme(name)
+		local t = self.themes[name]
+		if not t then return end
+		self._theme = name
+		self._bg.BackgroundColor3 = t.Primary
+		titleBar.BackgroundColor3 = t.Secondary
+		content.BackgroundColor3 = t.Secondary
+		closeBtn.BackgroundColor3 = t.Interactables
+		closeBtn.TextColor3 = t.Description
 	end
 
-	function api:SetSetting(key, value)
-		if key == "Transparency" then
-			value = clamp(value, 0, 1)
-			self._bg.BackgroundTransparency = value
-		elseif key == "Blur" then
-			if value and not self._blur then
+	function api:SetSetting(k, v)
+		if k == "Transparency" then
+			self._bg.BackgroundTransparency = clamp(v, 0, 1)
+		elseif k == "Blur" then
+			if v and not self._blur then
 				self._blur = create("UIBlurEffect", { Intensity = 5, Parent = self._bg })
-			elseif not value and self._blur then
+			elseif not v and self._blur then
 				self._blur:Destroy()
 				self._blur = nil
 			end
-		elseif key == "Keybind" then
-			self._config.MinimizeKeybind = value
-		elseif key == "Size" then
-			self._bg.Size = value
+		elseif k == "Keybind" then
+			self._cfg.MinimizeKeybind = v
+		elseif k == "Size" then
+			self._bg.Size = v
 		end
 	end
 
 	function api:AddKeybindLabel(label, key)
-		local frame = create("Frame", {
-			Size = UDim2.new(0, 60, 1, 0),
-			BackgroundTransparency = 1,
-			LayoutOrder = #self._keybindPanel:GetChildren(),
-			Parent = self._keybindPanel
-		})
+		local f = create("Frame", { Size = UDim2.new(0, 60, 1, 0), BackgroundTransparency = 1, Parent = self._keyPanel })
 		create("TextLabel", {
 			Size = UDim2.new(1, 0, 1, 0),
 			Text = label .. " – " .. tostring(key.KeyCode):gsub("Enum.KeyCode.", ""),
 			Font = Enum.Font.GothamSemibold,
 			TextSize = 12,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextColor3 = Color3.fromRGB(255,255,255),
 			BackgroundTransparency = 1,
-			Parent = frame
+			Parent = f
 		})
-		self._keybindPanel.Visible = true
+		self._keyPanel.Visible = true
 	end
 
-	function api:Notify(params)
-		params.Duration = params.Duration or 3
-		local notify = create("Frame", {
+	function api:Notify(p)
+		p.Duration = p.Duration or 3
+		local n = create("Frame", {
 			Size = UDim2.fromOffset(300, 60),
 			Position = UDim2.new(1, -310, 0, 10 + (#PlayerGui:GetChildren() * 70)),
 			BackgroundColor3 = self.themes[self._theme].Primary,
 			BorderSizePixel = 0,
 			Parent = PlayerGui
 		})
-		create("UIStroke", {
-			Color = self.themes[self._theme].Outline,
-			Parent = notify
-		})
+		create("UIStroke", { Color = self.themes[self._theme].Outline, Parent = n })
 		create("TextLabel", {
 			Size = UDim2.new(1, -10, 0, 20),
 			Position = UDim2.new(0, 5, 0, 5),
-			Text = params.Title,
+			Text = p.Title,
 			Font = Enum.Font.GothamBold,
 			TextSize = 14,
 			TextColor3 = self.themes[self._theme].Title,
 			BackgroundTransparency = 1,
-			Parent = notify
+			Parent = n
 		})
 		create("TextLabel", {
 			Size = UDim2.new(1, -10, 0, 20),
 			Position = UDim2.new(0, 5, 0, 25),
-			Text = params.Description,
+			Text = p.Description,
 			Font = Enum.Font.Gotham,
 			TextSize = 12,
 			TextColor3 = self.themes[self._theme].Description,
 			BackgroundTransparency = 1,
-			Parent = notify
+			Parent = n
 		})
 		spawn(function()
-			wait(params.Duration)
-			notify:Destroy()
+			wait(p.Duration)
+			n:Destroy()
 		end)
 	end
 
-	-- Placeholder for other components (button, slider, etc.)
-	function api:AddButton(params)
-		-- Simplified; full impl would clone template
-		local btn = create("TextButton", {
+	-- Placeholder components (you can expand these)
+	function api:AddButton(p)
+		local b = create("TextButton", {
 			Size = UDim2.new(1, 0, 0, 30),
-			Text = params.Title,
+			Text = p.Title,
 			Font = Enum.Font.GothamSemibold,
 			TextSize = 14,
 			TextColor3 = self.themes[self._theme].Title,
@@ -330,21 +297,41 @@ function NeonUI:CreateWindow(config)
 			AutoButtonColor = false,
 			Parent = self._content
 		})
-		btn.MouseButton1Click:Connect(params.Callback)
+		b.MouseButton1Click:Connect(p.Callback)
+	end
+
+	function api:AddToggle(p)
+		local t = create("TextButton", {
+			Size = UDim2.new(1, 0, 0, 30),
+			Text = p.Title,
+			Font = Enum.Font.GothamSemibold,
+			TextSize = 14,
+			TextColor3 = self.themes[self._theme].Title,
+			BackgroundColor3 = self.themes[self._theme].Component,
+			AutoButtonColor = false,
+			Parent = self._content
+		})
+		local state = p.Default or false
+		local function update()
+			t.BackgroundColor3 = state and Color3.fromRGB(153,155,255) or self.themes[self._theme].Interactables
+		end
+		update()
+		t.MouseButton1Click:Connect(function()
+			state = not state
+			update()
+			p.Callback(state)
+		end)
 	end
 
 	-- Finalize
-	window.Parent = PlayerGui
-	table.insert(self.windows, api)
+	api:Notify({ Title = "Ready", Description = "Press " .. tostring(cfg.MinimizeKeybind) .. " to toggle", Duration = 3 })
 	return api
 end
 
 function NeonUI:Destroy()
-	for _, win in ipairs(self.windows) do
-		win._window:Destroy()
-		for _, conn in ipairs(win._connections or {}) do
-			conn:Disconnect()
-		end
+	for _, w in ipairs(self.windows) do
+		if w._win then w._win:Destroy() end
+		for _, c in ipairs(w._conns or {}) do c:Disconnect() end
 	end
 	self.windows = {}
 end
