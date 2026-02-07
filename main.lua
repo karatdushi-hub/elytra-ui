@@ -1,4 +1,3 @@
---// Connections
 local GetService = game.GetService
 local Connect = game.Loaded.Connect
 local Wait = game.Loaded.Wait
@@ -21,7 +20,9 @@ local Setup = {
 --// Elytra-UI Protection
 local ElytraUI = {
 	WindowCreated = false,
-	ActiveFunctions = {}
+	ActiveFunctions = {},
+	MinimizeIconVisible = true,
+	MinimizeIcon = nil
 }
 
 local Theme = { --// (Dark Theme)
@@ -310,6 +311,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local Maximized = false;
 	local BlurEnabled = false
 	local WindowConnections = {} -- Store all connections for unload
+	local IsAnimating = false -- Prevent rapid minimize/maximize
+	local DropdownOpen = false -- Prevent multiple dropdowns open
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -336,6 +339,10 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	--// Animate
 	local Close = function()
+		if IsAnimating then return end -- Prevent rapid minimize/maximize
+
+		IsAnimating = true
+
 		if Opened then
 			if BlurEnabled then
 				Blurs[Settings.Title].root.Parent = nil
@@ -352,6 +359,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 				Blurs[Settings.Title].root.Parent = workspace.CurrentCamera
 			end
 		end
+
+		task.wait(0.3) -- Wait for animation to complete
+		IsAnimating = false
 	end
 
 	--// Elytra-UI: Unload function to close window and disconnect all connections
@@ -378,11 +388,51 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		ElytraUI.ActiveFunctions = {}
 	end
 
-	--// Elytra-UI: AddKeybindLabel function (placeholder for compatibility)
-	function Options:AddKeybindLabel(Name, Key)
-		-- Keybind panel removed as requested
-		-- This function is kept for compatibility but does nothing
-	end
+	--// Elytra-UI: Create Minimize Icon
+	local MinimizeIconGui = Instance.new("ScreenGui")
+	MinimizeIconGui.Name = "ElytraMinimizeIconGui"
+	MinimizeIconGui.ResetOnSpawn = false
+	MinimizeIconGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+	local MinimizeIcon = Instance.new("ImageButton")
+	MinimizeIcon.Name = "MinimizeIcon"
+	MinimizeIcon.Size = UDim2.new(0, 50, 0, 50)
+	MinimizeIcon.Position = UDim2.new(0, 10, 0.5, -25)
+	MinimizeIcon.BackgroundTransparency = 1
+	MinimizeIcon.Image = "rbxassetid://128010543125125"
+	MinimizeIcon.Parent = MinimizeIconGui
+
+	local IconCorner = Instance.new("UICorner")
+	IconCorner.CornerRadius = UDim.new(0, 8)
+	IconCorner.Parent = MinimizeIcon
+
+	local IconStroke = Instance.new("UIStroke")
+	IconStroke.Color = Color3.fromRGB(40, 40, 40)
+	IconStroke.Thickness = 2
+	IconStroke.Transparency = 0.5
+	IconStroke.Parent = MinimizeIcon
+
+	xpcall(function()
+		MinimizeIconGui.Parent = game.CoreGui
+	end, function()
+		MinimizeIconGui.Parent = Player.GUI
+	end)
+
+	ElytraUI.MinimizeIcon = MinimizeIcon
+
+	--// Elytra-UI: Minimize Icon hover animation
+	ElytraConnect(MinimizeIcon.MouseEnter, function()
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 55, 0, 55) })
+	end)
+
+	ElytraConnect(MinimizeIcon.MouseLeave, function()
+		Tween(MinimizeIcon, .2, { Size = UDim2.new(0, 50, 0, 50) })
+	end)
+
+	--// Elytra-UI: Minimize Icon click to toggle window
+	ElytraConnect(MinimizeIcon.MouseButton1Click, function()
+		Close()
+	end)
 
 	--// Elytra-UI: Custom Connect function to store connections
 	local function ElytraConnect(Signal, Callback)
@@ -693,6 +743,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local Text = Dropdown["Main"].Options;
 
 		ElytraConnect(Dropdown.MouseButton1Click, function()
+			if DropdownOpen then return end -- Prevent multiple dropdowns open
+			DropdownOpen = true
+
 			local Example = Clone(Examples["DropdownExample"]);
 			local Buttons = Example["Top"]["Buttons"];
 
@@ -709,6 +762,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						Animations:Close(Example);
 						task.wait(2)
 						Destroy(Example);
+						DropdownOpen = false -- Reset dropdown open flag
 					end)
 				end
 			end
@@ -745,6 +799,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 					Animations:Close(Example);
 					task.wait(2)
 					Destroy(Example);
+					DropdownOpen = false -- Reset dropdown open flag
 				end)
 			end
 		end)
@@ -1053,6 +1108,13 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		elseif Setting == "Keybind" then
 
 			Setup.Keybind = Value
+
+		elseif Setting == "MinimizeIconVisible" then
+
+			if ElytraUI.MinimizeIcon then
+				ElytraUI.MinimizeIcon.Visible = Value
+			end
+			ElytraUI.MinimizeIconVisible = Value
 
 		else
 			warn("Tried to change a setting that doesn't exist or isn't available to change.")
