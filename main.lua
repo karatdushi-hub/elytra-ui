@@ -51,6 +51,9 @@ local Theme = { --// (Dark Theme)
 
 	--// Image:
 	Icon = Color3.fromRGB(220, 220, 220),
+
+	--// Toggle:
+	ToggleOn = Color3.fromRGB(153, 155, 255),
 }
 
 --// Predefined Themes
@@ -64,7 +67,8 @@ local Themes = {
 		Title = Color3.fromRGB(0, 0, 0),
 		Description = Color3.fromRGB(100, 100, 100),
 		Outline = Color3.fromRGB(210, 210, 210),
-		Icon = Color3.fromRGB(100, 100, 100)
+		Icon = Color3.fromRGB(100, 100, 100),
+		ToggleOn = Color3.fromRGB(100, 150, 255)
 	},
 	Dark = {
 		Primary = Color3.fromRGB(30, 30, 30),
@@ -75,7 +79,8 @@ local Themes = {
 		Title = Color3.fromRGB(240, 240, 240),
 		Description = Color3.fromRGB(200, 200, 200),
 		Outline = Color3.fromRGB(40, 40, 40),
-		Icon = Color3.fromRGB(220, 220, 220)
+		Icon = Color3.fromRGB(220, 220, 220),
+		ToggleOn = Color3.fromRGB(153, 155, 255)
 	},
 	Void = {
 		Primary = Color3.fromRGB(15, 15, 15),
@@ -86,7 +91,8 @@ local Themes = {
 		Title = Color3.fromRGB(240, 240, 240),
 		Description = Color3.fromRGB(200, 200, 200),
 		Outline = Color3.fromRGB(40, 40, 40),
-		Icon = Color3.fromRGB(220, 220, 220)
+		Icon = Color3.fromRGB(220, 220, 220),
+		ToggleOn = Color3.fromRGB(120, 120, 180)
 	},
 	Ocean = {
 		Primary = Color3.fromRGB(10, 25, 47),
@@ -97,7 +103,8 @@ local Themes = {
 		Title = Color3.fromRGB(150, 210, 255),
 		Description = Color3.fromRGB(120, 190, 255),
 		Outline = Color3.fromRGB(30, 70, 110),
-		Icon = Color3.fromRGB(100, 180, 255)
+		Icon = Color3.fromRGB(100, 180, 255),
+		ToggleOn = Color3.fromRGB(50, 150, 255)
 	},
 	Forest = {
 		Primary = Color3.fromRGB(20, 40, 20),
@@ -108,7 +115,8 @@ local Themes = {
 		Title = Color3.fromRGB(150, 230, 150),
 		Description = Color3.fromRGB(120, 210, 120),
 		Outline = Color3.fromRGB(60, 100, 60),
-		Icon = Color3.fromRGB(100, 200, 100)
+		Icon = Color3.fromRGB(100, 200, 100),
+		ToggleOn = Color3.fromRGB(50, 200, 100)
 	},
 	Sunset = {
 		Primary = Color3.fromRGB(45, 20, 35),
@@ -119,7 +127,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 200, 150),
 		Description = Color3.fromRGB(255, 180, 130),
 		Outline = Color3.fromRGB(100, 60, 90),
-		Icon = Color3.fromRGB(255, 150, 100)
+		Icon = Color3.fromRGB(255, 150, 100),
+		ToggleOn = Color3.fromRGB(255, 120, 60)
 	},
 	Purple = {
 		Primary = Color3.fromRGB(30, 15, 45),
@@ -130,7 +139,8 @@ local Themes = {
 		Title = Color3.fromRGB(220, 170, 255),
 		Description = Color3.fromRGB(200, 150, 255),
 		Outline = Color3.fromRGB(70, 50, 110),
-		Icon = Color3.fromRGB(180, 120, 255)
+		Icon = Color3.fromRGB(180, 120, 255),
+		ToggleOn = Color3.fromRGB(150, 80, 255)
 	},
 	Rose = {
 		Primary = Color3.fromRGB(45, 20, 30),
@@ -141,7 +151,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 170, 200),
 		Description = Color3.fromRGB(255, 150, 180),
 		Outline = Color3.fromRGB(100, 60, 90),
-		Icon = Color3.fromRGB(255, 120, 150)
+		Icon = Color3.fromRGB(255, 120, 150),
+		ToggleOn = Color3.fromRGB(255, 80, 130)
 	},
 	Ruby = {
 		Primary = Color3.fromRGB(40, 10, 20),
@@ -152,7 +163,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 130, 170),
 		Description = Color3.fromRGB(255, 110, 150),
 		Outline = Color3.fromRGB(100, 50, 75),
-		Icon = Color3.fromRGB(255, 80, 120)
+		Icon = Color3.fromRGB(255, 80, 120),
+		ToggleOn = Color3.fromRGB(255, 50, 100)
 	},
 	Gold = {
 		Primary = Color3.fromRGB(30, 25, 15),
@@ -163,7 +175,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 230, 100),
 		Description = Color3.fromRGB(255, 220, 80),
 		Outline = Color3.fromRGB(90, 80, 50),
-		Icon = Color3.fromRGB(255, 215, 0)
+		Icon = Color3.fromRGB(255, 215, 0),
+		ToggleOn = Color3.fromRGB(255, 180, 0)
 	},
 	Silver = {
 		Primary = Color3.fromRGB(25, 25, 30),
@@ -174,7 +187,8 @@ local Themes = {
 		Title = Color3.fromRGB(220, 220, 220),
 		Description = Color3.fromRGB(200, 200, 200),
 		Outline = Color3.fromRGB(65, 65, 85),
-		Icon = Color3.fromRGB(192, 192, 192)
+		Icon = Color3.fromRGB(192, 192, 192),
+		ToggleOn = Color3.fromRGB(160, 160, 180)
 	},
 	Midnight = {
 		Primary = Color3.fromRGB(5, 5, 15),
@@ -185,7 +199,8 @@ local Themes = {
 		Title = Color3.fromRGB(150, 150, 220),
 		Description = Color3.fromRGB(120, 120, 200),
 		Outline = Color3.fromRGB(25, 25, 55),
-		Icon = Color3.fromRGB(100, 100, 180)
+		Icon = Color3.fromRGB(100, 100, 180),
+		ToggleOn = Color3.fromRGB(80, 80, 160)
 	},
 	Cherry = {
 		Primary = Color3.fromRGB(35, 10, 20),
@@ -196,7 +211,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 150, 180),
 		Description = Color3.fromRGB(255, 130, 160),
 		Outline = Color3.fromRGB(90, 50, 75),
-		Icon = Color3.fromRGB(255, 100, 130)
+		Icon = Color3.fromRGB(255, 100, 130),
+		ToggleOn = Color3.fromRGB(255, 60, 100)
 	},
 	Mint = {
 		Primary = Color3.fromRGB(15, 35, 25),
@@ -207,7 +223,8 @@ local Themes = {
 		Title = Color3.fromRGB(150, 255, 210),
 		Description = Color3.fromRGB(120, 255, 195),
 		Outline = Color3.fromRGB(55, 90, 80),
-		Icon = Color3.fromRGB(100, 255, 180)
+		Icon = Color3.fromRGB(100, 255, 180),
+		ToggleOn = Color3.fromRGB(50, 220, 140)
 	},
 	Lavender = {
 		Primary = Color3.fromRGB(25, 20, 40),
@@ -218,7 +235,8 @@ local Themes = {
 		Title = Color3.fromRGB(230, 210, 255),
 		Description = Color3.fromRGB(215, 195, 255),
 		Outline = Color3.fromRGB(65, 60, 100),
-		Icon = Color3.fromRGB(200, 180, 255)
+		Icon = Color3.fromRGB(200, 180, 255),
+		ToggleOn = Color3.fromRGB(170, 140, 255)
 	},
 	Coral = {
 		Primary = Color3.fromRGB(40, 25, 20),
@@ -229,7 +247,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 160, 120),
 		Description = Color3.fromRGB(255, 145, 105),
 		Outline = Color3.fromRGB(95, 65, 60),
-		Icon = Color3.fromRGB(255, 127, 80)
+		Icon = Color3.fromRGB(255, 127, 80),
+		ToggleOn = Color3.fromRGB(255, 90, 50)
 	},
 	Sky = {
 		Primary = Color3.fromRGB(15, 30, 50),
@@ -240,7 +259,8 @@ local Themes = {
 		Title = Color3.fromRGB(175, 230, 255),
 		Description = Color3.fromRGB(155, 220, 255),
 		Outline = Color3.fromRGB(55, 85, 125),
-		Icon = Color3.fromRGB(135, 206, 250)
+		Icon = Color3.fromRGB(135, 206, 250),
+		ToggleOn = Color3.fromRGB(80, 180, 255)
 	},
 	Emerald = {
 		Primary = Color3.fromRGB(15, 40, 25),
@@ -251,7 +271,8 @@ local Themes = {
 		Title = Color3.fromRGB(120, 230, 160),
 		Description = Color3.fromRGB(100, 215, 140),
 		Outline = Color3.fromRGB(55, 95, 80),
-		Icon = Color3.fromRGB(80, 200, 120)
+		Icon = Color3.fromRGB(80, 200, 120),
+		ToggleOn = Color3.fromRGB(40, 180, 90)
 	},
 	Amber = {
 		Primary = Color3.fromRGB(40, 30, 10),
@@ -262,7 +283,8 @@ local Themes = {
 		Title = Color3.fromRGB(255, 215, 80),
 		Description = Color3.fromRGB(255, 205, 60),
 		Outline = Color3.fromRGB(95, 85, 50),
-		Icon = Color3.fromRGB(255, 191, 0)
+		Icon = Color3.fromRGB(255, 191, 0),
+		ToggleOn = Color3.fromRGB(255, 160, 0)
 	},
 	Slate = {
 		Primary = Color3.fromRGB(20, 25, 30),
@@ -273,7 +295,8 @@ local Themes = {
 		Title = Color3.fromRGB(200, 210, 220),
 		Description = Color3.fromRGB(180, 195, 210),
 		Outline = Color3.fromRGB(60, 80, 100),
-		Icon = Color3.fromRGB(150, 170, 190)
+		Icon = Color3.fromRGB(150, 170, 190),
+		ToggleOn = Color3.fromRGB(120, 140, 160)
 	}
 }
 
@@ -1545,7 +1568,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		local Set = function(Value)
 			if Value then
-				Tween(Main,   .2, { BackgroundColor3 = Color3.fromRGB(153, 155, 255) });
+				Tween(Main,   .2, { BackgroundColor3 = Theme.ToggleOn or Color3.fromRGB(153, 155, 255) });
 				Tween(Circle, .2, { BackgroundColor3 = Color3.fromRGB(255, 255, 255), Position = UDim2.new(1, -16, 0.5, 0) });
 			else
 				Tween(Main,   .2, { BackgroundColor3 = Theme.Interactables });
@@ -2053,6 +2076,26 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			ElytraUI.MinimizeIcon.BackgroundColor3 = Theme.Secondary
 			if ElytraUI.MinimizeIcon:FindFirstChild("UIStroke") then
 				ElytraUI.MinimizeIcon.UIStroke.Color = Theme.Outline
+			end
+		end
+
+		-- Update MiniBar colors
+		if MiniBar then
+			MiniBar.BackgroundColor3 = Theme.Secondary
+			if MiniBar:FindFirstChild("PlayerIcon") then
+				MiniBar.PlayerIcon.BackgroundColor3 = Theme.Secondary
+			end
+		end
+
+		-- Update all toggles to use new theme color
+		if Options.Toggles then
+			for _, ToggleData in pairs(Options.Toggles) do
+				if ToggleData.On.Value then
+					local Main = ToggleData.Toggle:FindFirstChild("Main")
+					if Main then
+						Main.BackgroundColor3 = Theme.ToggleOn or Color3.fromRGB(153, 155, 255)
+					end
+				end
 			end
 		end
 
