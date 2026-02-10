@@ -1276,7 +1276,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.Name = "PlayerIcon"
 		PlayerIcon.Size = UDim2.new(0, 40, 0, 40) -- Smaller icon
 		PlayerIcon.Position = UDim2.new(0, 8, 0.5, -20) -- Centered vertically
-		PlayerIcon.BackgroundColor3 = Theme.Secondary
+		PlayerIcon.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 		PlayerIcon.BackgroundTransparency = 0
 		PlayerIcon.BorderSizePixel = 0
 		-- Get player avatar thumbnail
@@ -2082,9 +2082,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Update MiniBar colors
 		if MiniBar then
 			MiniBar.BackgroundColor3 = Theme.Secondary
-			if MiniBar:FindFirstChild("PlayerIcon") then
-				MiniBar.PlayerIcon.BackgroundColor3 = Theme.Secondary
-			end
 		end
 
 		-- Update all toggles to use new theme color
