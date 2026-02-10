@@ -938,7 +938,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	--// Initialize keybind handler
 	InitializeKeybindHandler()
 
-	--// Elytra-UI: Create Minimize Icon (Three Dots)
+	--// Elytra-UI: Create Minimize Icon (Three Colored Dots)
 	local MinimizeIconGui = Instance.new("ScreenGui")
 	MinimizeIconGui.Name = "ElytraMinimizeIconGui"
 	MinimizeIconGui.ResetOnSpawn = false
@@ -946,15 +946,13 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	local MinimizeIcon = Instance.new("TextButton")
 	MinimizeIcon.Name = "MinimizeIcon"
-	MinimizeIcon.Size = UDim2.new(0, 40, 0, 40)
-	MinimizeIcon.Position = UDim2.new(0, 10, 0.5, -20)
+	MinimizeIcon.Size = UDim2.new(0, 120, 0, 35)
+	MinimizeIcon.Position = UDim2.new(0.5, -60, 0, 15)
 	MinimizeIcon.BackgroundColor3 = Theme.Secondary
 	MinimizeIcon.BackgroundTransparency = 0.2
 	MinimizeIcon.BorderSizePixel = 0
-	MinimizeIcon.Text = "···"
-	MinimizeIcon.TextColor3 = Theme.Icon
-	MinimizeIcon.TextSize = 20
-	MinimizeIcon.Font = Enum.Font.GothamBold
+	MinimizeIcon.Text = ""
+	MinimizeIcon.ZIndex = 100
 	MinimizeIcon.Parent = MinimizeIconGui
 
 	local IconCorner = Instance.new("UICorner")
@@ -965,6 +963,46 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	IconStroke.Color = Theme.Outline
 	IconStroke.Thickness = 1
 	IconStroke.Parent = MinimizeIcon
+
+	-- Create three colored dots (red, yellow, green like macOS)
+	local Dot1 = Instance.new("Frame")
+	Dot1.Name = "Dot1"
+	Dot1.Size = UDim2.new(0, 10, 0, 10)
+	Dot1.Position = UDim2.new(0, 25, 0.5, -5)
+	Dot1.BackgroundColor3 = Color3.fromRGB(255, 95, 86)
+	Dot1.BorderSizePixel = 0
+	Dot1.ZIndex = 101
+	Dot1.Parent = MinimizeIcon
+
+	local Dot1Corner = Instance.new("UICorner")
+	Dot1Corner.CornerRadius = UDim.new(1, 0)
+	Dot1Corner.Parent = Dot1
+
+	local Dot2 = Instance.new("Frame")
+	Dot2.Name = "Dot2"
+	Dot2.Size = UDim2.new(0, 10, 0, 10)
+	Dot2.Position = UDim2.new(0, 55, 0.5, -5)
+	Dot2.BackgroundColor3 = Color3.fromRGB(255, 188, 46)
+	Dot2.BorderSizePixel = 0
+	Dot2.ZIndex = 101
+	Dot2.Parent = MinimizeIcon
+
+	local Dot2Corner = Instance.new("UICorner")
+	Dot2Corner.CornerRadius = UDim.new(1, 0)
+	Dot2Corner.Parent = Dot2
+
+	local Dot3 = Instance.new("Frame")
+	Dot3.Name = "Dot3"
+	Dot3.Size = UDim2.new(0, 10, 0, 10)
+	Dot3.Position = UDim2.new(0, 85, 0.5, -5)
+	Dot3.BackgroundColor3 = Color3.fromRGB(40, 200, 64)
+	Dot3.BorderSizePixel = 0
+	Dot3.ZIndex = 101
+	Dot3.Parent = MinimizeIcon
+
+	local Dot3Corner = Instance.new("UICorner")
+	Dot3Corner.CornerRadius = UDim.new(1, 0)
+	Dot3Corner.Parent = Dot3
 
 	xpcall(function()
 		MinimizeIconGui.Parent = game.CoreGui
@@ -1806,7 +1844,10 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Update MinimizeIcon colors
 		if ElytraUI.MinimizeIcon then
-			ElytraUI.MinimizeIcon.ImageColor3 = Theme.Icon
+			ElytraUI.MinimizeIcon.BackgroundColor3 = Theme.Secondary
+			if ElytraUI.MinimizeIcon:FindFirstChild("UIStroke") then
+				ElytraUI.MinimizeIcon.UIStroke.Color = Theme.Outline
+			end
 		end
 
 		for Index, Descendant in next, Screen:GetDescendants() do
