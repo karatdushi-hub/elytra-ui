@@ -681,9 +681,10 @@ local StoredInfo = {
 
 --// Keybind System for Functions
 local KeybindRegistry = {} -- Stores all registered keybinds: { [KeyCode] = { Name, Callback } }
+local KeybindInputConnection = nil -- Store the input connection
 
 -- Register a keybind for a function
-function Library:RegisterKeybind(Name: string, KeyCode: Enum.KeyCode, Callback: function)
+function Library:RegisterKeybind(Name, KeyCode, Callback)
 	if not Name or not KeyCode or not Callback then
 		warn("[Elytra-UI]: RegisterKeybind requires Name, KeyCode, and Callback")
 		return
@@ -706,7 +707,7 @@ function Library:RegisterKeybind(Name: string, KeyCode: Enum.KeyCode, Callback: 
 end
 
 -- Unregister a keybind by name
-function Library:UnregisterKeybind(Name: string)
+function Library:UnregisterKeybind(Name)
 	if not Name then return false end
 
 	for Key, Data in pairs(KeybindRegistry) do
@@ -729,17 +730,21 @@ function Library:ClearKeybinds()
 	KeybindRegistry = {}
 end
 
--- Input handler for keybinds
-Services.Input.InputBegan:Connect(function(Input, Focused)
-	if not Focused and Input.KeyCode then
-		local KeybindData = KeybindRegistry[Input.KeyCode]
-		if KeybindData then
-			task.spawn(function()
-				KeybindData.Callback()
-			end)
+-- Initialize keybind input handler (called when window is created)
+local function InitializeKeybindHandler()
+	if KeybindInputConnection then return end -- Already initialized
+
+	KeybindInputConnection = Services.Input.InputBegan:Connect(function(Input, Focused)
+		if not Focused and Input.KeyCode then
+			local KeybindData = KeybindRegistry[Input.KeyCode]
+			if KeybindData then
+				task.spawn(function()
+					KeybindData.Callback()
+				end)
+			end
 		end
-	end
-end)
+	end)
+end
 
 --// Animations [Window]
 function Animations:Open(Window: CanvasGroup, Transparency: number, UseCurrentSize: boolean)
@@ -929,6 +934,9 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		table.insert(WindowConnections, Connection)
 		return Connection
 	end
+
+	--// Initialize keybind handler
+	InitializeKeybindHandler()
 
 	--// Elytra-UI: Create Minimize Icon
 	local MinimizeIconGui = Instance.new("ScreenGui")
@@ -1891,3 +1899,4 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 end
 
 return Library
+ 
