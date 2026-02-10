@@ -143,16 +143,16 @@ local Themes = {
 		Outline = Color3.fromRGB(100, 60, 90),
 		Icon = Color3.fromRGB(255, 120, 150)
 	},
-	Cyberpunk = {
-		Primary = Color3.fromRGB(10, 10, 20),
-		Secondary = Color3.fromRGB(20, 20, 40),
-		Component = Color3.fromRGB(30, 30, 60),
-		Interactables = Color3.fromRGB(40, 40, 80),
-		Tab = Color3.fromRGB(0, 255, 255),
-		Title = Color3.fromRGB(255, 0, 255),
-		Description = Color3.fromRGB(150, 255, 255),
-		Outline = Color3.fromRGB(0, 200, 200),
-		Icon = Color3.fromRGB(255, 0, 255)
+	Ruby = {
+		Primary = Color3.fromRGB(40, 10, 20),
+		Secondary = Color3.fromRGB(55, 20, 35),
+		Component = Color3.fromRGB(70, 30, 50),
+		Interactables = Color3.fromRGB(85, 40, 65),
+		Tab = Color3.fromRGB(255, 80, 120),
+		Title = Color3.fromRGB(255, 130, 170),
+		Description = Color3.fromRGB(255, 110, 150),
+		Outline = Color3.fromRGB(100, 50, 75),
+		Icon = Color3.fromRGB(255, 80, 120)
 	},
 	Gold = {
 		Primary = Color3.fromRGB(30, 25, 15),
@@ -1053,7 +1053,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local DropdownOpen = false -- Prevent multiple dropdowns open
 	local MiniBar = nil -- Store mini bar reference
 	local UnbindButtons = {} -- Store unbind buttons for theme updates
-	local MiniBarColor = nil -- Store custom MiniBar color
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -1240,7 +1239,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		MiniBarFrame.Name = "MiniBar"
 		MiniBarFrame.Size = UDim2.new(1, -10, 0, 60) -- Reduced height
 		MiniBarFrame.Position = UDim2.new(0, 5, 1, -70) -- Bottom of Sidebar
-		MiniBarFrame.BackgroundColor3 = MiniBarColor or Theme.Secondary
+		MiniBarFrame.BackgroundColor3 = Theme.Secondary
 		MiniBarFrame.BackgroundTransparency = 0.1
 		MiniBarFrame.BorderSizePixel = 0
 		MiniBarFrame.Parent = Sidebar
@@ -1254,7 +1253,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.Name = "PlayerIcon"
 		PlayerIcon.Size = UDim2.new(0, 40, 0, 40) -- Smaller icon
 		PlayerIcon.Position = UDim2.new(0, 8, 0.5, -20) -- Centered vertically
-		PlayerIcon.BackgroundColor3 = Theme.Primary
+		PlayerIcon.BackgroundColor3 = Theme.Secondary
 		PlayerIcon.BackgroundTransparency = 0
 		PlayerIcon.BorderSizePixel = 0
 		-- Get player avatar thumbnail
@@ -1610,14 +1609,14 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Redesign keybind component: Unbind button on left, keybind display on right
 		-- Make Bind wider and shift unbind button further left
-		Bind.Size = UDim2.new(1, -30, 1, 0)
-		Bind.Position = UDim2.new(0, 25, 0, 0)
+		Bind.Size = UDim2.new(1, -25, 1, 0)
+		Bind.Position = UDim2.new(0, 20, 0, 0)
 
 		-- Create unbind button (left side) - square with rounded corners, white with black dot
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
 		UnbindButton.Size = UDim2.new(0, 16, 0, 16)
-		UnbindButton.Position = UDim2.new(0, 3, 0.5, -8)
+		UnbindButton.Position = UDim2.new(0, 2, 0.5, -8)
 		UnbindButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
@@ -2151,10 +2150,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 			ElytraUI.HubSettings.HubDescription = Value
 
-		elseif Setting == "MiniBarColor" and typeof(Value) == "Color3" then
-
-			Options:SetMiniBarColor(Value)
-
 		elseif Setting == "ThemeName" and typeof(Value) == "string" then
 
 			Options:SetThemeByName(Value)
@@ -2173,21 +2168,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			CreatorName = ElytraUI.HubSettings.CreatorName,
 			RepositoryUrl = ElytraUI.HubSettings.RepositoryUrl
 		}
-	end
-
-	--// Set MiniBar color
-	function Options:SetMiniBarColor(color)
-		if typeof(color) == "Color3" then
-			MiniBarColor = color
-			if MiniBar then
-				MiniBar.BackgroundColor3 = color
-			end
-		end
-	end
-
-	--// Get MiniBar color
-	function Options:GetMiniBarColor()
-		return MiniBarColor or Theme.Secondary
 	end
 
 	--// Set theme by name
