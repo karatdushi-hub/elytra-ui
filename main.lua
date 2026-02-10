@@ -679,6 +679,68 @@ local StoredInfo = {
 	["Tabs"] = {}
 };
 
+--// Keybind System for Functions
+local KeybindRegistry = {} -- Stores all registered keybinds: { [KeyCode] = { Name, Callback } }
+
+-- Register a keybind for a function
+function Library:RegisterKeybind(Name: string, KeyCode: Enum.KeyCode, Callback: function)
+	if not Name or not KeyCode or not Callback then
+		warn("[Elytra-UI]: RegisterKeybind requires Name, KeyCode, and Callback")
+		return
+	end
+
+	-- Remove existing keybind with same name
+	for Key, Data in pairs(KeybindRegistry) do
+		if Data.Name == Name then
+			KeybindRegistry[Key] = nil
+		end
+	end
+
+	-- Register new keybind
+	KeybindRegistry[KeyCode] = {
+		Name = Name,
+		Callback = Callback
+	}
+
+	return true
+end
+
+-- Unregister a keybind by name
+function Library:UnregisterKeybind(Name: string)
+	if not Name then return false end
+
+	for Key, Data in pairs(KeybindRegistry) do
+		if Data.Name == Name then
+			KeybindRegistry[Key] = nil
+			return true
+		end
+	end
+
+	return false
+end
+
+-- Get all registered keybinds
+function Library:GetKeybinds()
+	return KeybindRegistry
+end
+
+-- Clear all keybinds
+function Library:ClearKeybinds()
+	KeybindRegistry = {}
+end
+
+-- Input handler for keybinds
+Services.Input.InputBegan:Connect(function(Input, Focused)
+	if not Focused and Input.KeyCode then
+		local KeybindData = KeybindRegistry[Input.KeyCode]
+		if KeybindData then
+			task.spawn(function()
+				KeybindData.Callback()
+			end)
+		end
+	end
+end)
+
 --// Animations [Window]
 function Animations:Open(Window: CanvasGroup, Transparency: number, UseCurrentSize: boolean)
 	local Original = (UseCurrentSize and Window.Size) or Setup.Size
@@ -778,9 +840,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local WindowConnections = {} -- Store all connections for unload
 	local IsAnimating = false -- Prevent rapid minimize/maximize
 	local DropdownOpen = false -- Prevent multiple dropdowns open
-	local KeybindLabels = {} -- Store keybind labels for display
-	local UnbindButtons = {} -- Store unbind buttons for theme updates
 	local MiniBar = nil -- Store mini bar reference
+	local UnbindButtons = {} -- Store unbind buttons for theme updates
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -856,115 +917,10 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Clear active functions
 		ElytraUI.ActiveFunctions = {}
 
-		-- Clear keybind labels
-		KeybindLabels = {}
-
-		-- Clear unbind buttons
-		UnbindButtons = {}
-
 		-- Destroy minimize icon
 		if ElytraUI.MinimizeIcon and ElytraUI.MinimizeIcon.Parent then
 			ElytraUI.MinimizeIcon.Parent:Destroy()
 		end
-
-		-- Destroy keybind panel
-		if ElytraUI.KeybindPanelGui then
-			ElytraUI.KeybindPanelGui:Destroy()
-		end
-	end
-
-	--// Elytra-UI: AddKeybindLabel function to display keybinds on panel
-	function Options:AddKeybindLabel(Name, Key)
-		if not ElytraUI.KeybindPanel then return end
-
-		-- Remove existing label with same name
-		if KeybindLabels[Name] then
-			KeybindLabels[Name]:Destroy()
-			KeybindLabels[Name] = nil
-		end
-
-		-- Don't display if Key is nil (None)
-		if not Key then
-			-- Update panel visibility after removing label
-			self:UpdateKeybindPanelVisibility()
-			return
-		end
-
-		-- Format key name properly - remove Enum.KeyCode. prefix
-		local KeyName = ""
-		if typeof(Key) == "string" then
-			KeyName = Key:gsub("Enum%..*%.", "") -- Remove any Enum prefix
-		elseif typeof(Key) == "EnumItem" then
-			KeyName = tostring(Key):gsub("Enum%..*%.", "") -- Remove any Enum prefix
-		end
-
-		local KeybindLabel = Instance.new("TextLabel")
-		KeybindLabel.Name = Name
-		KeybindLabel.Size = UDim2.new(1, -10, 0, 20)
-		KeybindLabel.BackgroundTransparency = 1
-		KeybindLabel.TextColor3 = Theme.Description
-		KeybindLabel.TextSize = 14
-		KeybindLabel.Font = Enum.Font.Gotham
-		KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
-		KeybindLabel.Text = Name .. ": " .. KeyName
-		KeybindLabel.Parent = ElytraUI.KeybindPanel
-
-		KeybindLabels[Name] = KeybindLabel
-
-		-- Update panel size and visibility
-		local childCount = 0
-		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
-			if child:IsA("TextLabel") then
-				childCount = childCount + 1
-			end
-		end
-		ElytraUI.KeybindPanel.Size = UDim2.new(0, 200, 0, 30 + (childCount * 25))
-		self:UpdateKeybindPanelVisibility()
-	end
-
-	--// Elytra-UI: UpdateKeybindPanelVisibility function to hide panel if no keybinds
-	function Options:UpdateKeybindPanelVisibility()
-		if not ElytraUI.KeybindPanel then return end
-
-		local childCount = 0
-		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
-			if child:IsA("TextLabel") then
-				childCount = childCount + 1
-			end
-		end
-
-		if childCount == 0 then
-			-- Hide panel if no keybinds
-			ElytraUI.KeybindPanel.Visible = false
-		else
-			-- Show panel if there are keybinds
-			ElytraUI.KeybindPanel.Visible = true
-		end
-	end
-
-	--// Elytra-UI: UpdateKeybindPanelColors function to update label colors on theme change
-	function Options:UpdateKeybindPanelColors()
-		if not ElytraUI.KeybindPanel then return end
-
-		for _, child in pairs(ElytraUI.KeybindPanel:GetChildren()) do
-			if child:IsA("TextLabel") then
-				child.TextColor3 = Theme.Description
-			end
-		end
-	end
-
-	--// Elytra-UI: RemoveKeybindLabel function to remove a keybind label from panel
-	function Options:RemoveKeybindLabel(Name)
-		if not ElytraUI.KeybindPanel then return end
-
-		-- Remove existing label with same name
-		if KeybindLabels[Name] then
-			KeybindLabels[Name]:Destroy()
-			KeybindLabels[Name] = nil
-		end
-
-		-- Update panel visibility
-		self:UpdateKeybindPanelVisibility()
 	end
 
 	--// Elytra-UI: Custom Connect function to store connections
@@ -1013,44 +969,6 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	ElytraConnect(MinimizeIcon.MouseButton1Click, function()
 		Close()
 	end)
-
-	--// Elytra-UI: Create Keybind Panel (top right)
-	local KeybindPanelGui = Instance.new("ScreenGui")
-	KeybindPanelGui.Name = "ElytraKeybindPanelGui"
-	KeybindPanelGui.ResetOnSpawn = false
-	KeybindPanelGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-	local KeybindPanel = Instance.new("Frame")
-	KeybindPanel.Name = "KeybindPanel"
-	KeybindPanel.Size = UDim2.new(0, 200, 0, 30)
-	KeybindPanel.Position = UDim2.new(1, -210, 0, 10)
-	KeybindPanel.BackgroundColor3 = Theme.Primary
-	KeybindPanel.BackgroundTransparency = 0.2
-	KeybindPanel.Visible = false -- Hidden by default
-	KeybindPanel.Parent = KeybindPanelGui
-
-	local PanelCorner = Instance.new("UICorner")
-	PanelCorner.CornerRadius = UDim.new(0, 6)
-	PanelCorner.Parent = KeybindPanel
-
-	local PanelStroke = Instance.new("UIStroke")
-	PanelStroke.Color = Theme.Outline
-	PanelStroke.Thickness = 1
-	PanelStroke.Transparency = 0.5
-	PanelStroke.Parent = KeybindPanel
-
-	local KeybindListLayout = Instance.new("UIListLayout")
-	KeybindListLayout.Padding = UDim.new(0, 5)
-	KeybindListLayout.Parent = KeybindPanel
-
-	xpcall(function()
-		KeybindPanelGui.Parent = game.CoreGui
-	end, function()
-		KeybindPanelGui.Parent = Player.GUI
-	end)
-
-	ElytraUI.KeybindPanel = KeybindPanel
-	ElytraUI.KeybindPanelGui = KeybindPanelGui
 
 	--// Elytra-UI: Create Mini Bar (in left sidebar)
 	local function CreateMiniBar()
@@ -1401,43 +1319,64 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		-- Redesign keybind component: Unbind button on left, keybind display on right
 		-- Reset Bind to original size and position
-		Bind.Size = UDim2.new(1, -70, 1, 0)
-		Bind.Position = UDim2.new(0, 65, 0, 0)
+		Bind.Size = UDim2.new(1, -40, 1, 0)
+		Bind.Position = UDim2.new(0, 35, 0, 0)
 
-		-- Create unbind button (left side)
+		-- Create unbind button (left side) - square with rounded corners, white with black dot
 		local UnbindButton = Instance.new("TextButton")
 		UnbindButton.Name = "UnbindButton"
-		UnbindButton.Size = UDim2.new(0, 55, 0, 20)
-		UnbindButton.Position = UDim2.new(0, 5, 0.5, -10)
-		UnbindButton.BackgroundColor3 = Theme.Interactables
+		UnbindButton.Size = UDim2.new(0, 24, 0, 24)
+		UnbindButton.Position = UDim2.new(0, 5, 0.5, -12)
+		UnbindButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		UnbindButton.BackgroundTransparency = 0
 		UnbindButton.BorderSizePixel = 0
-		UnbindButton.Text = "✕"
-		UnbindButton.TextColor3 = Theme.Description
-		UnbindButton.TextSize = 14
-		UnbindButton.Font = Enum.Font.GothamBold
+		UnbindButton.Text = ""
 		UnbindButton.ZIndex = 3
 		UnbindButton.Parent = MainFrame
 
 		local UnbindCorner = Instance.new("UICorner")
-		UnbindCorner.CornerRadius = UDim.new(0, 4)
+		UnbindCorner.CornerRadius = UDim.new(0, 6)
 		UnbindCorner.Parent = UnbindButton
 
+		-- Black dot indicator (only visible when keybind is set)
+		local DotIndicator = Instance.new("Frame")
+		DotIndicator.Name = "DotIndicator"
+		DotIndicator.Size = UDim2.new(0, 8, 0, 8)
+		DotIndicator.Position = UDim2.new(0.5, -4, 0.5, -4)
+		DotIndicator.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		DotIndicator.BackgroundTransparency = 1
+		DotIndicator.BorderSizePixel = 0
+		DotIndicator.ZIndex = 4
+		DotIndicator.Parent = UnbindButton
+
+		local DotCorner = Instance.new("UICorner")
+		DotCorner.CornerRadius = UDim.new(1, 0)
+		DotCorner.Parent = DotIndicator
+
 		-- Store unbind button for theme updates
-		table.insert(UnbindButtons, { Button = UnbindButton })
+		table.insert(UnbindButtons, { Button = UnbindButton, Dot = DotIndicator })
 
 		-- Hover animation for unbind button
 		ElytraConnect(UnbindButton.MouseEnter, function()
-			Tween(UnbindButton, .15, { BackgroundColor3 = Color3.fromRGB(200, 60, 60) })
+			Tween(UnbindButton, .15, { BackgroundColor3 = Color3.fromRGB(240, 240, 240) })
 		end)
 
 		ElytraConnect(UnbindButton.MouseLeave, function()
-			Tween(UnbindButton, .15, { BackgroundColor3 = Theme.Interactables })
+			Tween(UnbindButton, .15, { BackgroundColor3 = Color3.fromRGB(255, 255, 255) })
 		end)
 
 		local CurrentKey = nil
 		local DetectConnection = nil
 		local IsBinding = false
+
+		-- Update dot visibility based on keybind state
+		local function UpdateDot()
+			if CurrentKey then
+				DotIndicator.BackgroundTransparency = 0
+			else
+				DotIndicator.BackgroundTransparency = 1
+			end
+		end
 
 		-- Unbind button click handler
 		ElytraConnect(UnbindButton.MouseButton1Click, function()
@@ -1452,6 +1391,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			SetProperty(Bind, { Text = "None" })
 			Settings.Callback(nil)
 			IsBinding = false
+			UpdateDot()
 		end)
 
 		-- Keybind click handler - click on the keybind display area
@@ -1478,6 +1418,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						CurrentKey = Key.KeyCode
 						local KeyName = tostring(Key.KeyCode):gsub("Enum%..*%.", "")
 						SetProperty(Bind, { Text = KeyName })
+						UpdateDot()
 						task.delay(0.1, function()
 							Settings.Callback(Key.KeyCode)
 							IsBinding = false
@@ -1489,6 +1430,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 						else
 							SetProperty(Bind, { Text = "None" })
 						end
+						UpdateDot()
 						IsBinding = false
 					end
 				end
@@ -1816,28 +1758,10 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			Window.UIStroke.Color = Theme.Shadow
 		end
 
-		-- Update KeybindPanel colors
-		if ElytraUI.KeybindPanel then
-			ElytraUI.KeybindPanel.BackgroundColor3 = Theme.Primary
-			if ElytraUI.KeybindPanel:FindFirstChild("UIStroke") then
-				ElytraUI.KeybindPanel.UIStroke.Color = Theme.Outline
-			end
-		end
-
 		-- Update MinimizeIcon colors
 		if ElytraUI.MinimizeIcon then
 			ElytraUI.MinimizeIcon.ImageColor3 = Theme.Icon
 		end
-
-		-- Update all UnbindButtons colors
-		for _, UnbindData in pairs(UnbindButtons) do
-			if UnbindData.Button and UnbindData.Button.Parent then
-				UnbindData.Button.BackgroundColor3 = Theme.Interactables
-			end
-		end
-
-		-- Update keybind panel label colors
-		self:UpdateKeybindPanelColors()
 
 		for Index, Descendant in next, Screen:GetDescendants() do
 			local Name, Class =  ThemeHandlers.Names[Descendant.Name],  ThemeHandlers.Classes[Descendant.ClassName]
