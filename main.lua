@@ -1279,6 +1279,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 		PlayerIcon.BackgroundTransparency = 0
 		PlayerIcon.BorderSizePixel = 0
+		PlayerIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) -- Always white
 		-- Get player avatar thumbnail
 		local success, content = pcall(function()
 			return game:GetService("Players"):GetUserThumbnailAsync(
@@ -2098,6 +2099,11 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		end
 
 		for Index, Descendant in next, Screen:GetDescendants() do
+			-- Skip PlayerIcon - don't change its image color
+			if Descendant.Name == "PlayerIcon" then
+				continue
+			end
+
 			local Name, Class =  ThemeHandlers.Names[Descendant.Name],  ThemeHandlers.Classes[Descendant.ClassName]
 
 			if Name then
