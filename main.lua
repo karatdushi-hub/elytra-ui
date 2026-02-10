@@ -1275,7 +1275,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local PlayerIcon = Instance.new("ImageLabel")
 		PlayerIcon.Name = "PlayerIcon"
 		PlayerIcon.Size = UDim2.new(0, 40, 0, 40) -- Smaller icon
-		PlayerIcon.Position = UDim2.new(0, 8, 0.5, -20) -- Centered vertically
+		PlayerIcon.Position = UDim2.new(0, 5, 0.5, -20) -- Centered vertically, moved left
 		PlayerIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		PlayerIcon.BackgroundTransparency = 1
 		PlayerIcon.BorderSizePixel = 0
@@ -1294,6 +1294,12 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		local IconCorner = Instance.new("UICorner")
 		IconCorner.CornerRadius = UDim.new(0, 6)
 		IconCorner.Parent = PlayerIcon
+
+		local IconStroke = Instance.new("UIStroke")
+		IconStroke.Name = "IconStroke"
+		IconStroke.Color = Theme.Outline
+		IconStroke.Thickness = 1
+		IconStroke.Parent = PlayerIcon
 
 		-- Info container (right side)
 		local InfoContainer = Instance.new("Frame")
@@ -2084,6 +2090,10 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		-- Update MiniBar colors
 		if MiniBar then
 			MiniBar.BackgroundColor3 = Theme.Secondary
+			-- Update PlayerIcon stroke color
+			if MiniBar:FindFirstChild("PlayerIcon") and MiniBar.PlayerIcon:FindFirstChild("IconStroke") then
+				MiniBar.PlayerIcon.IconStroke.Color = Theme.Outline
+			end
 		end
 
 		-- Update all toggles to use new theme color
