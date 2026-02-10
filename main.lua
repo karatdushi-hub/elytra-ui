@@ -87,6 +87,193 @@ local Themes = {
 		Description = Color3.fromRGB(200, 200, 200),
 		Outline = Color3.fromRGB(40, 40, 40),
 		Icon = Color3.fromRGB(220, 220, 220)
+	},
+	Ocean = {
+		Primary = Color3.fromRGB(10, 25, 47),
+		Secondary = Color3.fromRGB(15, 35, 60),
+		Component = Color3.fromRGB(20, 45, 75),
+		Interactables = Color3.fromRGB(25, 55, 90),
+		Tab = Color3.fromRGB(100, 180, 255),
+		Title = Color3.fromRGB(150, 210, 255),
+		Description = Color3.fromRGB(120, 190, 255),
+		Outline = Color3.fromRGB(30, 70, 110),
+		Icon = Color3.fromRGB(100, 180, 255)
+	},
+	Forest = {
+		Primary = Color3.fromRGB(20, 40, 20),
+		Secondary = Color3.fromRGB(30, 55, 30),
+		Component = Color3.fromRGB(40, 70, 40),
+		Interactables = Color3.fromRGB(50, 85, 50),
+		Tab = Color3.fromRGB(100, 200, 100),
+		Title = Color3.fromRGB(150, 230, 150),
+		Description = Color3.fromRGB(120, 210, 120),
+		Outline = Color3.fromRGB(60, 100, 60),
+		Icon = Color3.fromRGB(100, 200, 100)
+	},
+	Sunset = {
+		Primary = Color3.fromRGB(45, 20, 35),
+		Secondary = Color3.fromRGB(60, 30, 50),
+		Component = Color3.fromRGB(75, 40, 65),
+		Interactables = Color3.fromRGB(90, 50, 80),
+		Tab = Color3.fromRGB(255, 150, 100),
+		Title = Color3.fromRGB(255, 200, 150),
+		Description = Color3.fromRGB(255, 180, 130),
+		Outline = Color3.fromRGB(100, 60, 90),
+		Icon = Color3.fromRGB(255, 150, 100)
+	},
+	Purple = {
+		Primary = Color3.fromRGB(30, 15, 45),
+		Secondary = Color3.fromRGB(40, 25, 60),
+		Component = Color3.fromRGB(50, 35, 75),
+		Interactables = Color3.fromRGB(60, 45, 90),
+		Tab = Color3.fromRGB(180, 120, 255),
+		Title = Color3.fromRGB(220, 170, 255),
+		Description = Color3.fromRGB(200, 150, 255),
+		Outline = Color3.fromRGB(70, 50, 110),
+		Icon = Color3.fromRGB(180, 120, 255)
+	},
+	Rose = {
+		Primary = Color3.fromRGB(45, 20, 30),
+		Secondary = Color3.fromRGB(60, 30, 45),
+		Component = Color3.fromRGB(75, 40, 60),
+		Interactables = Color3.fromRGB(90, 50, 75),
+		Tab = Color3.fromRGB(255, 120, 150),
+		Title = Color3.fromRGB(255, 170, 200),
+		Description = Color3.fromRGB(255, 150, 180),
+		Outline = Color3.fromRGB(100, 60, 90),
+		Icon = Color3.fromRGB(255, 120, 150)
+	},
+	Cyberpunk = {
+		Primary = Color3.fromRGB(10, 10, 20),
+		Secondary = Color3.fromRGB(20, 20, 40),
+		Component = Color3.fromRGB(30, 30, 60),
+		Interactables = Color3.fromRGB(40, 40, 80),
+		Tab = Color3.fromRGB(0, 255, 255),
+		Title = Color3.fromRGB(255, 0, 255),
+		Description = Color3.fromRGB(150, 255, 255),
+		Outline = Color3.fromRGB(0, 200, 200),
+		Icon = Color3.fromRGB(255, 0, 255)
+	},
+	Gold = {
+		Primary = Color3.fromRGB(30, 25, 15),
+		Secondary = Color3.fromRGB(45, 40, 25),
+		Component = Color3.fromRGB(60, 55, 35),
+		Interactables = Color3.fromRGB(75, 70, 45),
+		Tab = Color3.fromRGB(255, 215, 0),
+		Title = Color3.fromRGB(255, 230, 100),
+		Description = Color3.fromRGB(255, 220, 80),
+		Outline = Color3.fromRGB(90, 80, 50),
+		Icon = Color3.fromRGB(255, 215, 0)
+	},
+	Silver = {
+		Primary = Color3.fromRGB(25, 25, 30),
+		Secondary = Color3.fromRGB(35, 35, 45),
+		Component = Color3.fromRGB(45, 45, 60),
+		Interactables = Color3.fromRGB(55, 55, 75),
+		Tab = Color3.fromRGB(192, 192, 192),
+		Title = Color3.fromRGB(220, 220, 220),
+		Description = Color3.fromRGB(200, 200, 200),
+		Outline = Color3.fromRGB(65, 65, 85),
+		Icon = Color3.fromRGB(192, 192, 192)
+	},
+	Midnight = {
+		Primary = Color3.fromRGB(5, 5, 15),
+		Secondary = Color3.fromRGB(10, 10, 25),
+		Component = Color3.fromRGB(15, 15, 35),
+		Interactables = Color3.fromRGB(20, 20, 45),
+		Tab = Color3.fromRGB(100, 100, 180),
+		Title = Color3.fromRGB(150, 150, 220),
+		Description = Color3.fromRGB(120, 120, 200),
+		Outline = Color3.fromRGB(25, 25, 55),
+		Icon = Color3.fromRGB(100, 100, 180)
+	},
+	Cherry = {
+		Primary = Color3.fromRGB(35, 10, 20),
+		Secondary = Color3.fromRGB(50, 20, 35),
+		Component = Color3.fromRGB(65, 30, 50),
+		Interactables = Color3.fromRGB(80, 40, 65),
+		Tab = Color3.fromRGB(255, 100, 130),
+		Title = Color3.fromRGB(255, 150, 180),
+		Description = Color3.fromRGB(255, 130, 160),
+		Outline = Color3.fromRGB(90, 50, 75),
+		Icon = Color3.fromRGB(255, 100, 130)
+	},
+	Mint = {
+		Primary = Color3.fromRGB(15, 35, 25),
+		Secondary = Color3.fromRGB(25, 50, 40),
+		Component = Color3.fromRGB(35, 65, 55),
+		Interactables = Color3.fromRGB(45, 80, 70),
+		Tab = Color3.fromRGB(100, 255, 180),
+		Title = Color3.fromRGB(150, 255, 210),
+		Description = Color3.fromRGB(120, 255, 195),
+		Outline = Color3.fromRGB(55, 90, 80),
+		Icon = Color3.fromRGB(100, 255, 180)
+	},
+	Lavender = {
+		Primary = Color3.fromRGB(25, 20, 40),
+		Secondary = Color3.fromRGB(35, 30, 55),
+		Component = Color3.fromRGB(45, 40, 70),
+		Interactables = Color3.fromRGB(55, 50, 85),
+		Tab = Color3.fromRGB(200, 180, 255),
+		Title = Color3.fromRGB(230, 210, 255),
+		Description = Color3.fromRGB(215, 195, 255),
+		Outline = Color3.fromRGB(65, 60, 100),
+		Icon = Color3.fromRGB(200, 180, 255)
+	},
+	Coral = {
+		Primary = Color3.fromRGB(40, 25, 20),
+		Secondary = Color3.fromRGB(55, 35, 30),
+		Component = Color3.fromRGB(70, 45, 40),
+		Interactables = Color3.fromRGB(85, 55, 50),
+		Tab = Color3.fromRGB(255, 127, 80),
+		Title = Color3.fromRGB(255, 160, 120),
+		Description = Color3.fromRGB(255, 145, 105),
+		Outline = Color3.fromRGB(95, 65, 60),
+		Icon = Color3.fromRGB(255, 127, 80)
+	},
+	Sky = {
+		Primary = Color3.fromRGB(15, 30, 50),
+		Secondary = Color3.fromRGB(25, 45, 70),
+		Component = Color3.fromRGB(35, 60, 90),
+		Interactables = Color3.fromRGB(45, 75, 110),
+		Tab = Color3.fromRGB(135, 206, 250),
+		Title = Color3.fromRGB(175, 230, 255),
+		Description = Color3.fromRGB(155, 220, 255),
+		Outline = Color3.fromRGB(55, 85, 125),
+		Icon = Color3.fromRGB(135, 206, 250)
+	},
+	Emerald = {
+		Primary = Color3.fromRGB(15, 40, 25),
+		Secondary = Color3.fromRGB(25, 55, 40),
+		Component = Color3.fromRGB(35, 70, 55),
+		Interactables = Color3.fromRGB(45, 85, 70),
+		Tab = Color3.fromRGB(80, 200, 120),
+		Title = Color3.fromRGB(120, 230, 160),
+		Description = Color3.fromRGB(100, 215, 140),
+		Outline = Color3.fromRGB(55, 95, 80),
+		Icon = Color3.fromRGB(80, 200, 120)
+	},
+	Amber = {
+		Primary = Color3.fromRGB(40, 30, 10),
+		Secondary = Color3.fromRGB(55, 45, 20),
+		Component = Color3.fromRGB(70, 60, 30),
+		Interactables = Color3.fromRGB(85, 75, 40),
+		Tab = Color3.fromRGB(255, 191, 0),
+		Title = Color3.fromRGB(255, 215, 80),
+		Description = Color3.fromRGB(255, 205, 60),
+		Outline = Color3.fromRGB(95, 85, 50),
+		Icon = Color3.fromRGB(255, 191, 0)
+	},
+	Slate = {
+		Primary = Color3.fromRGB(20, 25, 30),
+		Secondary = Color3.fromRGB(30, 40, 50),
+		Component = Color3.fromRGB(40, 55, 70),
+		Interactables = Color3.fromRGB(50, 70, 90),
+		Tab = Color3.fromRGB(150, 170, 190),
+		Title = Color3.fromRGB(200, 210, 220),
+		Description = Color3.fromRGB(180, 195, 210),
+		Outline = Color3.fromRGB(60, 80, 100),
+		Icon = Color3.fromRGB(150, 170, 190)
 	}
 }
 
@@ -730,7 +917,26 @@ function Library:ClearKeybinds()
 	KeybindRegistry = {}
 end
 
--- Initialize keybind input handler (called when window is created)
+--// Get all available themes
+function Library:GetThemes()
+	return Themes
+end
+
+--// Get theme by name
+function Library:GetTheme(themeName)
+	return Themes[themeName]
+end
+
+--// Get list of theme names
+function Library:GetThemeNames()
+	local names = {}
+	for name, _ in pairs(Themes) do
+		table.insert(names, name)
+	end
+	return names
+end
+
+--// Initialize keybind input handler (called when window is created)
 local function InitializeKeybindHandler()
 	if KeybindInputConnection then return end -- Already initialized
 
@@ -847,6 +1053,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 	local DropdownOpen = false -- Prevent multiple dropdowns open
 	local MiniBar = nil -- Store mini bar reference
 	local UnbindButtons = {} -- Store unbind buttons for theme updates
+	local MiniBarColor = nil -- Store custom MiniBar color
 
 	for Index, Example in next, Window:GetDescendants() do
 		if Example.Name:find("Example") and not Examples[Example.Name] then
@@ -1033,7 +1240,7 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		MiniBarFrame.Name = "MiniBar"
 		MiniBarFrame.Size = UDim2.new(1, -10, 0, 60) -- Reduced height
 		MiniBarFrame.Position = UDim2.new(0, 5, 1, -70) -- Bottom of Sidebar
-		MiniBarFrame.BackgroundColor3 = Theme.Secondary
+		MiniBarFrame.BackgroundColor3 = MiniBarColor or Theme.Secondary
 		MiniBarFrame.BackgroundTransparency = 0.1
 		MiniBarFrame.BorderSizePixel = 0
 		MiniBarFrame.Parent = Sidebar
@@ -1944,6 +2151,14 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 			ElytraUI.HubSettings.HubDescription = Value
 
+		elseif Setting == "MiniBarColor" and typeof(Value) == "Color3" then
+
+			Options:SetMiniBarColor(Value)
+
+		elseif Setting == "ThemeName" and typeof(Value) == "string" then
+
+			Options:SetThemeByName(Value)
+
 		else
 			warn("Tried to change a setting that doesn't exist or isn't available to change.")
 		end
@@ -1958,6 +2173,31 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 			CreatorName = ElytraUI.HubSettings.CreatorName,
 			RepositoryUrl = ElytraUI.HubSettings.RepositoryUrl
 		}
+	end
+
+	--// Set MiniBar color
+	function Options:SetMiniBarColor(color)
+		if typeof(color) == "Color3" then
+			MiniBarColor = color
+			if MiniBar then
+				MiniBar.BackgroundColor3 = color
+			end
+		end
+	end
+
+	--// Get MiniBar color
+	function Options:GetMiniBarColor()
+		return MiniBarColor or Theme.Secondary
+	end
+
+	--// Set theme by name
+	function Options:SetThemeByName(themeName)
+		if Themes[themeName] then
+			Options:SetTheme(Themes[themeName])
+			Setup.ThemeMode = themeName
+			return true
+		end
+		return false
 	end
 
 	SetProperty(Window, { Size = Settings.Size, Visible = true, Parent = Screen });
