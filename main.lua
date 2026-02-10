@@ -1276,8 +1276,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 		PlayerIcon.Name = "PlayerIcon"
 		PlayerIcon.Size = UDim2.new(0, 40, 0, 40) -- Smaller icon
 		PlayerIcon.Position = UDim2.new(0, 8, 0.5, -20) -- Centered vertically
-		PlayerIcon.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-		PlayerIcon.BackgroundTransparency = 0
+		PlayerIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		PlayerIcon.BackgroundTransparency = 1
 		PlayerIcon.BorderSizePixel = 0
 		PlayerIcon.ImageColor3 = Color3.fromRGB(255, 255, 255) -- Always white
 		-- Get player avatar thumbnail
