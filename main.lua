@@ -2037,7 +2037,8 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 		Classes = {
 			["ImageLabel"] = function(Label)
-				if Label.Image ~= "rbxassetid://6644618143" and Theme.Icon then
+				-- Skip PlayerIcon - don't change its image color
+				if Label.Name ~= "PlayerIcon" and Label.Image ~= "rbxassetid://6644618143" and Theme.Icon then
 					Label.ImageColor3 = Theme.Icon
 				end
 			end,
